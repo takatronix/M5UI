@@ -13,7 +13,7 @@ efont
 
 ## Usage
 ```
-arduino-cli lib install https://github.com/takatronix/M5UI
+arduino-cli lib install --zip-path /path/to/M5UI.zip
 ```
 
 #### How To Use
