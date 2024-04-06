@@ -3,25 +3,53 @@
 #include <M5Unified.h>
 
 
+
 class M5UICanvas : public M5Canvas
 {
     int frameCount = 0;
     StopWatch startWatch;
+    StopWatch drawWatch;
+    int _drawTime = 0;
 public:
+    bool _enableRotation = false;
     M5UICanvas(M5GFX* pDisplay) : M5Canvas(pDisplay) {
     }
     void update(){
+        StopWatch drawWatch;
+
+        // デバイスの向きが変わったら画面の向きも変える
+        if(Device::wasOrientationChanged() && _enableRotation) {
+            LOG_D("Orientation changed");
+            int rotation = Device::getRotation();
+            if(rotation != -1){
+                M5.Display.setRotation(rotation);
+
+                this->updateAllPosition();
+            }
+        }
+
         Tween::updateAll();
-        Sprite::updateAll();
+        bool shouldRefresh = Sprite::updateAll();
+        _drawTime = drawWatch.Elapsed();
+        
         pushSprite(0, 0);
         frameCount++;
     }
+    void updateAllPosition(){
+        for(auto sprite : Sprite::_sprites){
+            sprite->updatePosition();
+        }
+    }
+
     int getFPS(){
         auto second = startWatch.Second();
         if(second == 0){
             return 0;
         }
         return frameCount / second;
+    }
+    int getDrawTime(){
+        return _drawTime;
     }
     void resetFPS(){
         frameCount = 0;

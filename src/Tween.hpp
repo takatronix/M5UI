@@ -99,12 +99,12 @@ public:
         : _startValue(start), _endValue(end), _duration(duration), _type(type), _loop(loop), _isRunning(false), _isCompleted(true) {}
 
     // アニメーション完了時に実行する関数を設定
-    Tween& setCompletionCallback(std::function<void()> callback)
+    Tween& onComplete(std::function<void()> callback)
     {
         _completionCallback = callback;
         return *this;
     }
-    Tween& setProgressCallback(std::function<void(float,float)> callback)
+    Tween& onUpdate(std::function<void(float,float)> callback)
     {
         _progressCallback = callback;
         return *this;

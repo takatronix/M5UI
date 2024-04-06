@@ -3,7 +3,6 @@
 
 class TextSprite : public Sprite{
 public:
-    int textSize = 1;
     String text;
     TextSprite(M5Canvas* pDisplay) : Sprite(pDisplay) {
     }
@@ -15,9 +14,7 @@ public:
         Sprite::add(this);
     }
 
-    void setTextSize(int size){
-        textSize = size;
-    }
+
     void setText(const char* text){
         // テキストに変更があれば描画
         if(this->text == text){
@@ -31,7 +28,7 @@ public:
     }
 
     void draw(){
-        canvas.setTextSize(textSize);
+        canvas.clear();
         canvas.drawString(text.c_str(),0,0);
     }   
 };

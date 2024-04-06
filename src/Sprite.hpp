@@ -6,6 +6,20 @@
 #define M5UI_COLOR_DEPTH 8
 #endif
 
+enum PositionType
+{
+    None,
+    TopLeft,
+    TopCenter,
+    TopRight,
+    MiddleLeft,
+    MiddleCenter,
+    MiddleRight,
+    BottomLeft,
+    BottomCenter,
+    BottomRight,
+    Center,
+};
 class Sprite
 {
     int _x = 0;
@@ -18,15 +32,19 @@ class Sprite
 public:
     int _id;
     String tag;
+    PositionType positionType = PositionType::None;    
 #pragma region SpriteManager
     static std::vector<Sprite *> _sprites;
-    static void updateAll()
+    static bool updateAll()
     {
-        LOG_V("Sprite::updateAll count:%d",_sprites.size());
+        bool shouldRefresh = false;
         for (int i = 0; i < _sprites.size(); i++)
         {
-            _sprites[i]->push();
+            if(_sprites[i]->push()){
+                shouldRefresh = true;
+            }
         }
+        return shouldRefresh;
     }
     static void setup()
     {
@@ -233,6 +251,14 @@ public:
         }
         canvas.fillSprite(color);
     }
+    void setTextColor(uint32_t color)
+    {
+        canvas.setTextColor(convertColor(color));
+    }
+    void setTextSize(int size)
+    {
+        canvas.setTextSize(size);
+    }
 
     /// @brief          スプライトを作成する
     /// @param width    作成するスプライトの幅
@@ -313,8 +339,8 @@ virtual void draw(){
 }
 
 #pragma region Push
-    void push(void)
-    {
+    bool push(void)
+    {   bool shouldRefresh = false;
         // 背景バックアップONの場合は背景を復帰
         if (_shouldBackup)
         {
@@ -323,9 +349,10 @@ virtual void draw(){
         if(_shouldRedraw){
             draw();
             _shouldRedraw = false;
+            shouldRefresh = true;
         }
-        LOG_V("pushSprite:%d,%d",_x,_y);
         canvas.pushSprite(parentCanvas, _x, _y);
+        return shouldRefresh;
     }
     void push(int x, int y)
     {
@@ -345,22 +372,20 @@ virtual void draw(){
 #pragma region Move
     void moveTo(int x, int y, TweenType type = TweenType::LINEAR, unsigned long duration = 100, bool loop = false)
     {
-        LOG_V("MoveTo:%d,%d", x, y);
-
         if(_x == x && _y == y) return;
+        if(duration == 0){
+            _x = x;
+            _y = y;
+            return;
+        }
 
-        Tween *tweenX = Tween::create(_x, x, duration, type, loop);       
-        tweenX->setProgressCallback([this](float progress,float value) {
-            _x = (int)(value);
-            LOG_V("moving :%d,%d",_x,_y);
+        Tween::create(_x, x, duration, type, loop)->start()
+        .onUpdate([this](float progress,float value) {
+            _x = value;
         });
-        tweenX->start();
-       // tweenX->setCompletionCallback([this]() {
-       //     _x = 0;
-       // });
 
         Tween::create(_y, y, duration, type, loop)->start()
-        .setProgressCallback([this](float progress,float value) {
+        .onUpdate([this](float progress,float value) {
             _y = value;
         });
 
@@ -377,6 +402,64 @@ virtual void draw(){
     }
 
 #pragma endregion
+    bool updatePosition(){
+        if(positionType == PositionType::None) 
+            return false;
+        auto pos = getScreenPosition(positionType);
+        _x = pos.first;
+        _y = pos.second;
+        redraw();
+        return true;
+    }
+    bool setPosition(PositionType pos){
+        this->positionType = pos;
+        auto result = getScreenPosition(pos);
+        _x = result.first;
+        _y = result.second;        
+        redraw();
+        return true;
+    }
+
+    std::pair<int, int> getScreenPosition(PositionType pos){
+        switch (pos)
+        {
+        case PositionType::TopLeft:
+            return std::make_pair(0,0);
+            break;
+        case PositionType::TopRight:
+            return std::make_pair(M5.Display.width() - width(),0);
+            break;
+        case PositionType::TopCenter:
+            return std::make_pair((M5.Display.width() - width()) / 2,0);
+            break;
+        case PositionType::MiddleLeft:
+            return std::make_pair(0,(M5.Display.height() - height()) / 2);
+            break;
+        case PositionType::MiddleRight:
+            return std::make_pair(M5.Display.width() - width(),(M5.Display.height() - height()) / 2);
+            break;
+        case PositionType::BottomLeft:
+            return std::make_pair(0,M5.Display.height() - height());
+            break;
+        case PositionType::BottomRight:
+            // 0割りエラー対策
+            if(height() == 0) return std::make_pair(0,0);
+            return std::make_pair(M5.Display.width() - width(),M5.Display.height() - height());
+            break;
+        case PositionType::BottomCenter:
+            // 0割りエラー対策
+            if(height() == 0) return std::make_pair(0,0);
+            return std::make_pair((M5.Display.width() - width()) / 2,M5.Display.height() - height());
+            break;
+        case PositionType::Center:
+            // 0割りエラー対策
+            if(height() == 0) return std::make_pair(0,0);
+            return std::make_pair((M5.Display.width() - width()) / 2,(M5.Display.height() - height()) / 2);
+            break;
+        }
+    
+    }
+
 
 #pragma region Animation Move
     void moveWithTween(int x, int y, int duration)
