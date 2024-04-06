@@ -1,5 +1,4 @@
-#ifndef _ImageSprite_hpp_
-#define _ImageSprite_hpp_
+#pragma once
 #include "Sprite.hpp"
 
 class ImageSprite : public Sprite{
@@ -23,5 +22,3 @@ public:
     }
 
 };
-
-#endif

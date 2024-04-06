@@ -1,8 +1,5 @@
-#ifndef _M5UICanvas_hpp_
-#define _M5UICanvas_hpp_
+#pragma once
 #include <M5Unified.h>
-
-
 
 class M5UICanvas : public M5Canvas
 {
@@ -120,4 +117,3 @@ public:
     }
 };
 
-#endif

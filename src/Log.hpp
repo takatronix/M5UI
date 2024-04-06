@@ -1,5 +1,4 @@
-#ifndef _Log_hpp_
-#define _Log_hpp_
+#pragma once
 #include <M5Unified.h>
 
 // ログレベル（ログレベルによって出力するログを制御する）
@@ -193,4 +192,4 @@ public:
 };
 #pragma endregion
 
-#endif
+#endi

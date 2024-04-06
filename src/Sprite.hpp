@@ -1,7 +1,6 @@
 #pragma once
 #include <M5Unified.h>
 
-
 #ifndef M5UI_COLOR_DEPTH
 #define M5UI_COLOR_DEPTH 8
 #endif
