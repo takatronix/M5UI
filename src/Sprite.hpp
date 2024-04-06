@@ -253,7 +253,7 @@ public:
     }
     void setTextColor(uint32_t color)
     {
-        canvas.setTextColor(convertColor(color));
+        canvas.setTextColor(color);
     }
     void setTextSize(int size)
     {

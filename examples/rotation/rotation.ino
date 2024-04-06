@@ -29,10 +29,15 @@ void setup() {
   drawTime.setPosition(PositionType::TopCenter);
   orientationName.setPosition(PositionType::Center);
 
-  battery.setTextSize(2);
-  fps.setTextSize(2);
-  drawTime.setTextSize(2);
-  orientationName.setTextSize(2);
+  int size = 1;
+  if(Device::isStack()) {
+    size = 2;
+  }
+
+  battery.setTextSize(size);
+  fps.setTextSize(size);
+  drawTime.setTextSize(size);
+  orientationName.setTextSize(size);
   orientationName.setTextColor(TFT_RED);
 }
 
