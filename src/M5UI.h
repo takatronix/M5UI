@@ -19,6 +19,4 @@
 #include "TextSprite.hpp"
 #include "ImageSprite.hpp"
 #include "M5UICanvas.hpp"
-#include "M5UIClass.hpp"
 
-//extern M5UIClass M5UI;

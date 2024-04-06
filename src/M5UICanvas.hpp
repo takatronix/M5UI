@@ -11,17 +11,25 @@ public:
     M5UICanvas(M5GFX* pDisplay) : M5Canvas(pDisplay) {
     }
     void update(){
-
-        // LCDへ描画
+        Tween::updateAll();
+        Sprite::updateAll();
         pushSprite(0, 0);
         frameCount++;
     }
-    float getFPS(){
-        return frameCount / startWatch.Second();
+    int getFPS(){
+        auto second = startWatch.Second();
+        if(second == 0){
+            return 0;
+        }
+        return frameCount / second;
     }
     void resetFPS(){
         frameCount = 0;
         startWatch.reset();
+    }
+    M5UICanvas& add(Sprite* sprite){
+        Sprite::add(sprite);
+        return *this;
     }
 
     bool setup(bool canRotate = true)
@@ -49,7 +57,7 @@ public:
         }
 
         this->setFont(&fonts::lgfxJapanGothic_16);
-        this->fillSprite(TFT_BLUE);
+        this->clear();
         this->setTextSize(1);
         this->setTextScroll(true);
 

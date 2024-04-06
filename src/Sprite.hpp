@@ -12,8 +12,9 @@ class Sprite
     int _y = 0;
     int _width = 0;
     int _height = 0;
-    bool _backup = false;
     static int _spriteNo;
+    bool _shouldBackup = false;
+    bool _shouldRedraw = true;
 public:
     int _id;
     String tag;
@@ -21,6 +22,7 @@ public:
     static std::vector<Sprite *> _sprites;
     static void updateAll()
     {
+        LOG_V("Sprite::updateAll count:%d",_sprites.size());
         for (int i = 0; i < _sprites.size(); i++)
         {
             _sprites[i]->push();
@@ -33,6 +35,11 @@ public:
     }
     static void add(Sprite *sprite)
     {
+        if(sprite->_id !=0 && Sprite::findById(sprite->_id) != NULL){
+            LOG_E("Sprite ID is already used:%d",sprite->_id);
+            return;
+        }
+
         if(sprite->_id == 0)
             sprite->_id = newId();
         _sprites.push_back(sprite);
@@ -164,14 +171,14 @@ public:
     {
         parentCanvas = parent;
     }
-    Sprite(M5Canvas *parent,String tag, int width, int height, int x = 0, int y = 0, int depth = M5UI_COLOR_DEPTH, bool psram = false) : parentCanvas(parent)
+    Sprite(M5Canvas *parent, int width, int height, int x = 0, int y = 0, int depth = M5UI_COLOR_DEPTH, bool psram = false) : parentCanvas(parent)
     {
-        this->tag = tag;
         parentCanvas = parent;
         if (create(width, height, x, y, depth, psram) == NULL)
         {
             LOG_E("Sprite create error");
         }
+        Sprite::add(this);
     }
     int id(){
         return _id;
@@ -189,28 +196,23 @@ public:
     {
         canvas.setPivot(width() / 2.0f, (float)height() / 2.0f);
     }
-    void drawDebug(){
-        canvas.clear(TFT_RED);
-        canvas.setCursor(0,0);
-        canvas.printf("%d,%d",_x,_y);
-    }
     void pushBackground(void)
     {
         uint8_t *buffer = new uint8_t[width() * height() * _depth / 8];
         parentCanvas->readRect(_x, _y, width(), height(), buffer);
         backgroundCanvas.pushImage(0, 0, width(), height(), buffer);
         delete[] buffer;
-        _backup = true;
+        _shouldBackup = true;
     }
     void popBackground(void)
     {
-        if (_backup)
+        if (_shouldBackup)
         {
             uint8_t *buffer = new uint8_t[width() * height() * _depth / 8];
             backgroundCanvas.readRect(0, 0, width(), height(), buffer);
             parentCanvas->pushImage(_x, _y, width(), height(), buffer);
             delete[] buffer;
-            _backup = false;
+            _shouldBackup = false;
         }
     }
 
@@ -298,15 +300,31 @@ public:
         return canvas.height();
     }
 #pragma endregion
+void redraw(){
+    _shouldRedraw = true;
+}
+virtual void draw(){
+    // debug
+    canvas.clear(TFT_RED);
+    canvas.setCursor(0,0);
+    canvas.printf("%s(%d)\n",tag.c_str(),_id);
+    canvas.printf("%d,%d\n",_x,_y);
+    canvas.printf("%d,%d\n",_width,_height);
+}
 
 #pragma region Push
     void push(void)
     {
         // 背景バックアップONの場合は背景を復帰
-        if (_backup)
+        if (_shouldBackup)
         {
             popBackground();
         }
+        if(_shouldRedraw){
+            draw();
+            _shouldRedraw = false;
+        }
+        LOG_V("pushSprite:%d,%d",_x,_y);
         canvas.pushSprite(parentCanvas, _x, _y);
     }
     void push(int x, int y)
