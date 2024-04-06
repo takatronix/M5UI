@@ -74,6 +74,9 @@ public:
     static void beep(int freq = 1000, int duration = 100) {
         tone(freq, duration);
     }
+    static void test(){
+        tone(3000, 1000);
+    }
 
     /// The setVolume function can be set the master volume in the range of 0-255. (default : 64)
     static void setVolume(int volume) {
