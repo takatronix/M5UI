@@ -1,0 +1,23 @@
+{
+  "name": "M5UI",
+  "description": "Library for M5Stack/Core2/Tough/CoreS3, M5StickC/C-Plus, M5CoreInk, M5Paper, M5ATOM, M5STAMP, M5Station",
+  "keywords": "M5UI",
+  "authors": {
+    "name": "takatronix",
+    "url": "http://takatronix.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/takatronix/M5UI.git"
+  },
+  "dependencies": [
+    {
+      "name": "M5Unified",
+      "version": ">=0.1.14"
+    }
+  ],
+  "version": "0.0.1",
+  "frameworks": ["arduino", "espidf", "*"],
+  "platforms": ["espressif32", "native"],
+  "headers": "M5Unified.h"
+}
