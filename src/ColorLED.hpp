@@ -1,6 +1,4 @@
-#ifndef _ColorLED_H_
-#define _ColorLED_H_
-
+#pragma once
 #include <M5Unified.h>
 
 class ColorLED
@@ -135,5 +133,3 @@ namespace ColorLEDColor
   const ColorLED::color_t SKYBLUE = {135, 206, 235};
   const ColorLED::color_t VIOLET = {180, 46, 226};
 };
-
-#endif

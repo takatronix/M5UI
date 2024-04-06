@@ -1,5 +1,4 @@
-#ifndef _Sound_hpp_
-#define _Sound_hpp_
+#pragma once
 #include <M5Unified.h> 
 
 enum class Note {
@@ -92,5 +91,3 @@ public:
     }
 
 };
-
-#endif

@@ -1,3 +1,4 @@
+#pragma once
 #include <functional> // std::functionを使用するために必要
 
 class Timer {

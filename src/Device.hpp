@@ -1,6 +1,5 @@
 // Created by: takatronix
-#ifndef _Device_hpp_
-#define _Device_hpp_
+#pragma once
 #include <M5Unified.h>
 
 /// @brief デバイスの向きを表す列挙型
@@ -419,4 +418,3 @@ public:
     }
 };
 
-#endif

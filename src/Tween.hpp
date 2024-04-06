@@ -1,5 +1,4 @@
-#ifndef _Tween_hpp_
-#define _Tween_hpp_
+#pragma once
 #include <M5Unified.h>
 #include <vector>
 #include <algorithm>
@@ -292,6 +291,3 @@ private:
         return -(_endValue - _startValue) * cos(t * (M_PI / 2)) + _endValue;
     }
 };
-
-
-#endif

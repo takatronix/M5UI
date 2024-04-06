@@ -1,5 +1,4 @@
-#ifndef _ConsoleSprite_hpp_
-#define _ConsoleSprite_hpp_
+#pragma once
 #include "Sprite.hpp"
 
 #include <efontEnableAll.h>
@@ -134,5 +133,3 @@ public:
         canvas.setCursor(posX, posY);
     }
 };
-
-#endif

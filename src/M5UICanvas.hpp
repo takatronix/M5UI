@@ -1,7 +1,7 @@
 #ifndef _M5UICanvas_hpp_
 #define _M5UICanvas_hpp_
-
 #include <M5Unified.h>
+
 
 class M5UICanvas : public M5Canvas
 {
@@ -11,10 +11,6 @@ public:
     M5UICanvas(M5GFX* pDisplay) : M5Canvas(pDisplay) {
     }
     void update(){
-        M5.update();
-
-        Tween::updateAll();
-        Sprite::updateAll();
 
         // LCDへ描画
         pushSprite(0, 0);

@@ -1,6 +1,4 @@
-#ifndef _StopWatch_hpp_
-#define _StopWatch_hpp_
-
+#pragma once
 class StopWatch
 {
     unsigned long _start;
@@ -43,5 +41,3 @@ public:
         return Elapsed() / 1000L;
     }
 };
-
-#endif

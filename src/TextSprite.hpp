@@ -1,6 +1,4 @@
-#ifndef _TextSprite_hpp_
-#define _TextSprite_hpp_
-
+#pragma once
 #include "Sprite.hpp"
 
 class TextSprite : public Sprite{
@@ -29,6 +27,3 @@ public:
         canvas.drawString(text.c_str(),0,0);
     }
 };
-
-#endif
-

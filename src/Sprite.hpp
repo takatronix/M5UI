@@ -1,5 +1,4 @@
-#ifndef _Sprite_hpp_
-#define _Sprite_hpp_
+#pragma once
 #include <M5Unified.h>
 
 
@@ -397,4 +396,3 @@ public:
         }
     }
 };
-#endif

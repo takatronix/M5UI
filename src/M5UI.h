@@ -1,5 +1,4 @@
-#ifndef _M5UI_h_
-#define _M5UI_h_
+#pragma once
 
 #include <M5Unified.h>
 
@@ -22,7 +21,4 @@
 #include "M5UICanvas.hpp"
 #include "M5UIClass.hpp"
 
-
-extern M5UIClass M5UI;
-
-#endif
+//extern M5UIClass M5UI;
