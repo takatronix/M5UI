@@ -13,7 +13,6 @@ enum class TweenType
     EASE_OUT,     // 最初は速く、徐々に減速
     EASE_IN_OUT,  // ゆっくり始まり、中盤で加速、最後に再び減速
     BOUNCE,       // 落下して跳ね返る動き
-    EASE_IN_BACK, // 少し後ろに引いてから目標値を超え、戻る
     ELASTIC,      // 物体が跳ね返るような動き
     CUBIC,        // ３次方程式に基づく動き
     SINUSOIDAL    // シヌス波に基づく動き
@@ -41,9 +40,6 @@ public:
             break;
         case TweenType::BOUNCE:
             return "BOUNCE";
-            break;
-        case TweenType::EASE_IN_BACK:
-            return "EASE_IN_BACK";
             break;
         case TweenType::ELASTIC:
             return "ELASTIC";
@@ -169,9 +165,6 @@ public:
         case TweenType::BOUNCE:
             _currentValue = bounce(progress);
             break;
-        case TweenType::EASE_IN_BACK:
-            _currentValue = easeInBack(progress);   
-            break;
         case TweenType::ELASTIC:
             _currentValue = elastic(progress);
             break;
@@ -258,12 +251,6 @@ private:
         }
     }
 
-    // 少し後ろに引いてから目標値を超え、戻る動き
-    float easeInBack(float t)
-    {
-        const float s = 1.70158f;
-        return _endValue * t * t * ((s + 1) * t - s) + _startValue;
-    }
 
     // エラスティック関数の実装
     float elastic(float t)

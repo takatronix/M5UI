@@ -24,10 +24,10 @@ void setup() {
   Sound::playNote(Note::C5,100);
   Sound::playNote(Note::G5,100);
   
-  battery.setPosition(PositionType::TopRight);
-  fps.setPosition(PositionType::TopLeft);
-  drawTime.setPosition(PositionType::TopCenter);
-  orientationName.setPosition(PositionType::Center);
+  battery.setPositionType(PositionType::TopRight);
+  fps.setPositionType(PositionType::TopLeft);
+  drawTime.setPositionType(PositionType::TopCenter);
+  orientationName.setPositionType(PositionType::Center);
 
   int size = 1;
   if(Device::isStack()) {
@@ -45,6 +45,7 @@ void loop() {
   M5.update();
   
   screen.clear();
+
 
   // Displays remaining battery charge
   battery.setText(String(Device::getBatteryLevel()) + "%");

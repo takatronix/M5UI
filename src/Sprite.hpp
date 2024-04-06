@@ -408,17 +408,22 @@ virtual void draw(){
         auto pos = getScreenPosition(positionType);
         _x = pos.first;
         _y = pos.second;
-        redraw();
         return true;
     }
-    bool setPosition(PositionType pos){
+    bool setPositionType(PositionType pos){
         this->positionType = pos;
         auto result = getScreenPosition(pos);
         _x = result.first;
         _y = result.second;        
-        redraw();
         return true;
     }
+    bool setPosition(PositionType pos){
+        auto result = getScreenPosition(pos);
+        _x = result.first;
+        _y = result.second;        
+        return true;
+    }
+    
 
     std::pair<int, int> getScreenPosition(PositionType pos){
         switch (pos)
