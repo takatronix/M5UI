@@ -7,16 +7,14 @@
 #define LOG_ENABLE_INFO
 #define LOG_ENABLE_DEBUG
 #define LOG_ENABLE_VERBOSE
-#include "Log.hpp"
 
+#include "Log.hpp"
 #include "Device.hpp"
 #include "Timer.hpp"
 #include "Sound.hpp"
 #include "StopWatch.hpp"
 #include "Tween.hpp"
-
 #include "Sprite.hpp"
 #include "TextSprite.hpp"
 #include "ImageSprite.hpp"
 #include "M5UICanvas.hpp"
-

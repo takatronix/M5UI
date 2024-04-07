@@ -21,7 +21,9 @@ enum class TweenType
 class Tween
 {
 public:
+    int _id;
 #pragma region Static Functions
+    static int _tweenNo;
     static std::vector<Tween *> _tweens;
     static char* tweenName(TweenType type){
         switch (type)
@@ -55,8 +57,14 @@ public:
             break;
         }
     }
+    // デストラクタ
+    ~Tween()
+    {
+        LOG_D("Tween Delete %s id:%d",getName(),_id);
+    }
     static void addTween(Tween *tween)
     {
+        LOG_D("Tween Add %s id:%d",tween->getName(),tween->_id);
         _tweens.push_back(tween);
     }
 
@@ -68,12 +76,14 @@ public:
     static Tween *create(float start, float end, unsigned long duration, TweenType type = TweenType::LINEAR, bool loop = false)
     {
         Tween *tween = new Tween(start, end, duration, type, loop);
+        tween->_id = _tweenNo++;
         addTween(tween);
         return tween;
     }
 
     static void updateAll()
     {
+//        LOG_D("Tween Count:%d",_tweens.size());
         for (auto it = _tweens.begin(); it != _tweens.end();)
         {
             Tween *tween = *it;
@@ -83,8 +93,8 @@ public:
             }
             else
             {
-                it = _tweens.erase(it);
-                delete tween;
+                LOG_D("Tween Complete %s id:%d",tween->getName(),tween->_id);
+                removeTween(tween);
             }
         }
     }
@@ -182,7 +192,7 @@ public:
         if(_progressCallback){
             _progressCallback(progress,_currentValue);
         }
-        //LOG_D("[%s] progress:%f value:%f",tweenName(_type),progress,_currentValue);
+       // LOG_D("[%s] progress:%f value:%f",tweenName(_type),progress,_currentValue);
         return true;
     }
 
@@ -197,7 +207,10 @@ public:
     {
         return _currentValue;
     }
-
+    operator float() const
+    {
+        return currentValue();
+    }
 
 private:
     float _startValue, _endValue, _currentValue;
