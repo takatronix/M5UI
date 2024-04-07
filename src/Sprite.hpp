@@ -136,16 +136,7 @@ public:
             calculateAffineTransformMatrix(_x, _y, _angle, _scale);
         return *this;
     }
-    Sprite &setPivot(float x, float y)
-    {
-        canvas.setPivot(x, y);
-        return *this;
-    }
-    Sprite &setPivotCenter()
-    {
-        canvas.setPivot(width() / 2.0f, (float)height() / 2.0f);
-        return *this;
-    }
+
 
     Sprite &setTextColor(uint16_t color)
     {
@@ -434,7 +425,8 @@ public:
         _width = width;
         _height = height;
 
-        Sprite::add(this);
+        _cx = width / 2;
+        _cy = height / 2;
 
         return true;
     }

@@ -41,7 +41,7 @@ public:
         if(pImage == NULL){
             return false;
         }
-        LOG_V("ImageSprite::push() x:%d y:%d width:%d height:%d",_x,_y,_width,_height);
+        //LOG_V("ImageSprite::push() x:%d y:%d width:%d height:%d",_x,_y,_width,_height);
         if(enableAffine){
 
             if(enableAA){
