@@ -23,6 +23,11 @@ public:
         this->_imageHeight = height;
         this->enableTransparent = convertColor(enableTransparent);
         this->_transparentColor = transparentColor;
+
+        this->_width = width;
+        this->_height = height;
+        this->_cx = width/2;
+        this->_cy = height/2;
         Sprite::add(this);
     }
     // 画像をpushするのでdrawは何もする必要なし(Debug情報のみ)

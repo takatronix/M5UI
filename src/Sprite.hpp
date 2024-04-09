@@ -49,66 +49,73 @@ public:
     bool enableAffine = false;
     bool enableAA = false;
 
-    void calculateAffineTransformMatrix(float x, float y, float cx, float cy, float angle = 0.0f, float scale = 1.0f)
-    {
-        // 回転の角度をラジアンに変換
-        float rad = angle * (M_PI / 180.0f);
+void calculateAffineTransformMatrix(float x, float y, float cx, float cy, float width, float height, float angle=0.0f, float scale=1.0f) {
+    // 回転の角度をラジアンに変換
+    float rad = angle * (M_PI / 180.0f);
 
-        // ステップ1と3（元の位置から回転中心まで移動し、回転後に元に戻す）のための補正
-        float correctedX = x - cx;
-        float correctedY = y - cy;
+    // 画像の中心座標を計算（グローバル座標系での位置）
+    float centerX = x + cx + width / 2;
+    float centerY = y + cy + height / 2;
 
-        // アフィン変換行列の計算
-        _matrix[0] = cos(rad) * scale;                                   // 0行0列
-        _matrix[1] = -sin(rad) * scale;                                  // 0行1列
-        _matrix[2] = correctedX * cos(rad) - correctedY * sin(rad) + cx; // 平行移動x、回転後に元に戻す
-        _matrix[3] = sin(rad) * scale;                                   // 1行0列
-        _matrix[4] = cos(rad) * scale;                                   // 1行1列
-        _matrix[5] = correctedX * sin(rad) + correctedY * cos(rad) + cy; // 平行移動y、回転後に元に戻す
-    }
+    // ステップ1: 画像中心を原点に移動するための補正
+    float correctedX = -width / 2;
+    float correctedY = -height / 2;
+
+    // アフィン変換行列の計算
+    _matrix[0] = cos(rad) * scale; // 0行0列
+    _matrix[1] = -sin(rad) * scale; // 0行1列
+    _matrix[2] = centerX + correctedX * cos(rad) - correctedY * sin(rad); // 平行移動x
+    _matrix[3] = sin(rad) * scale; // 1行0列
+    _matrix[4] = cos(rad) * scale; // 1行1列
+    _matrix[5] = centerY + correctedX * sin(rad) + correctedY * cos(rad); // 平行移動y
+}
     Sprite &setX(int x)
     {
         _x = x;
         if (enableAffine)
-            calculateAffineTransformMatrix(_x, _y, _cx, _cy, _angle, _scale);
+            calculateAffineTransformMatrix(_x, _y, _cx, _cy,_width,_height, _angle, _scale);
         return *this;
     }
     Sprite &setY(int y)
     {
         _y = y;
         if (enableAffine)
-            calculateAffineTransformMatrix(_x, _y, _cx, _cy, _angle, _scale);
+            calculateAffineTransformMatrix(_x, _y, _cx, _cy,_width,_height, _angle, _scale);
         return *this;
     }
     Sprite &setCenterX(int x)
     {
         _cx = x;
         if (enableAffine)
-            calculateAffineTransformMatrix(_x, _y, _cx, _cy, _angle, _scale);
+            calculateAffineTransformMatrix(_x, _y, _cx, _cy,_width,_height, _angle, _scale);
         return *this;
     }
     Sprite &setCenterY(int y)
     {
         _cy = y;
         if (enableAffine)
-            calculateAffineTransformMatrix(_x, _y, _cx, _cy, _angle, _scale);
+            calculateAffineTransformMatrix(_x, _y, _cx, _cy,_width,_height, _angle, _scale);
         return *this;
     }
     Sprite &setWidth(int width)
     {
         _width = width;
+        if (enableAffine)
+            calculateAffineTransformMatrix(_x, _y, _cx, _cy,_width,_height, _angle, _scale);
         return *this;
     }
     Sprite &setHeight(int height)
     {
         _height = height;
+        if (enableAffine)
+            calculateAffineTransformMatrix(_x, _y, _cx, _cy,_width,_height, _angle, _scale);
         return *this;
     }
     Sprite &setAngle(float angle)
     {
         _angle = angle;
         if (enableAffine)
-            calculateAffineTransformMatrix(_x, _y, _angle, _scale);
+            calculateAffineTransformMatrix(_x, _y, _cx, _cy,_width,_height, _angle, _scale);
         return *this;
     }
     // duration秒かけてangleに変化させる
@@ -133,7 +140,8 @@ public:
     {
         _scale = scale;
         if (enableAffine)
-            calculateAffineTransformMatrix(_x, _y, _angle, _scale);
+            calculateAffineTransformMatrix(_x, _y, _cx, _cy,_width,_height, _angle, _scale);
+
         return *this;
     }
 

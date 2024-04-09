@@ -47,17 +47,8 @@ void setup() {
   man10.setPosition(PositionType::Center);
   man10.enableTransparent = true;
   man10.enableAffine = true;
-  man10.setScale(3);
-
-
-
-  man10.setAngle(45, 3000, TweenType::LINEAR, [](){
-      LOG_V("Tween Complete");
-      Sound::beep();
-
-
-  });
-
+  man10.enableAA = false;
+  man10.setPivotCenter();
 
 
 }
@@ -91,14 +82,22 @@ void loop() {
     auto d = t.isDragging();
     auto f = t.isFlicking();
     auto c = t.getClickCount();
-    LOG_D("x:%d y:%d p:%d r:%d h:%d d:%d f:%d c:%d",x,y,p,r,h,d,f,c);
     if(x!=-1 && y!=-1){
+    LOG_D("touch is x:%d y:%d p:%d r:%d h:%d d:%d f:%d c:%d",x,y,p,r,h,d,f,c);
        man10.setX(x);
        man10.setY(y);
     }
   }
 
+  if(M5.BtnB.wasPressed()) {
+    Sound::beep();
+    screen.clear(RED);
 
+    man10.setAngle(36 0, 1000, TweenType::LINEAR, [](){
+        LOG_V("Tween Complete");
+        Sound::beep();
+    });
+  }
 
   battery.setText(String(Device::getBatteryLevel()) + "%");
   fps.setText(String(screen.getFPS()) + "FPS");
