@@ -49,7 +49,7 @@ public:
     bool enableAffine = false;
     bool enableAA = false;
 
-void calculateAffineTransformMatrix(float x, float y, float cx, float cy, float width, float height, float angle=0.0f, float scale=1.0f) {
+void calculateAffineTransformMatrixx(float x, float y, float cx, float cy, float width, float height, float angle=0.0f, float scale=1.0f) {
     // 回転の角度をラジアンに変換
     float rad = angle * (M_PI / 180.0f);
 
@@ -58,9 +58,10 @@ void calculateAffineTransformMatrix(float x, float y, float cx, float cy, float 
     float centerY = y + cy + height / 2;
 
     // ステップ1: 画像中心を原点に移動するための補正
-    float correctedX = -width / 2;
-    float correctedY = -height / 2;
-
+    //float correctedX = -width / 2;
+    //float correctedY = -height / 2;
+    float correctedX = 0;
+    float correctedY = 0;
     // アフィン変換行列の計算
     _matrix[0] = cos(rad) * scale; // 0行0列
     _matrix[1] = -sin(rad) * scale; // 0行1列
@@ -69,53 +70,71 @@ void calculateAffineTransformMatrix(float x, float y, float cx, float cy, float 
     _matrix[4] = cos(rad) * scale; // 1行1列
     _matrix[5] = centerY + correctedX * sin(rad) + correctedY * cos(rad); // 平行移動y
 }
+void calculateAffineTransformMatrix(float x,float y,float cx, float cy, float angle=0.0f, float scale=1.0f) {
+    // 回転の角度をラジアンに変換
+    float rad = angle * (M_PI / 180.0f);
+
+    // 回転とスケールを行列に組み込む
+    _matrix[0] = cos(rad) * scale; // a: x'のxに対する係数
+    _matrix[1] = -sin(rad) * scale; // b: x'のyに対する係数
+    _matrix[3] = sin(rad) * scale; // d: y'のxに対する係数
+    _matrix[4] = cos(rad) * scale; // e: y'のyに対する係数
+
+    // 平行移動の計算
+    // 中心点を原点に移動してから回転し、その後(x, y) に移動
+    _matrix[2] = -cx * cos(rad) + cy * sin(rad) + cx + x; // c: x'の平行移動成分
+    _matrix[5] = -cx * sin(rad) - cy * cos(rad) + cy + y; // f: y'の平行移動成分
+
+}
+
+
+
+    void calculateAffine()
+    {
+        calculateAffineTransformMatrix(x(),y(),cx(),cy(),_angle,_scale);
+    }
+
+
     Sprite &setX(int x)
     {
         _x = x;
-        if (enableAffine)
-            calculateAffineTransformMatrix(_x, _y, _cx, _cy,_width,_height, _angle, _scale);
+        calculateAffine();
         return *this;
     }
     Sprite &setY(int y)
     {
         _y = y;
-        if (enableAffine)
-            calculateAffineTransformMatrix(_x, _y, _cx, _cy,_width,_height, _angle, _scale);
+        calculateAffine();
         return *this;
     }
     Sprite &setCenterX(int x)
     {
         _cx = x;
-        if (enableAffine)
-            calculateAffineTransformMatrix(_x, _y, _cx, _cy,_width,_height, _angle, _scale);
+        calculateAffine();
         return *this;
     }
     Sprite &setCenterY(int y)
     {
         _cy = y;
-        if (enableAffine)
-            calculateAffineTransformMatrix(_x, _y, _cx, _cy,_width,_height, _angle, _scale);
+        calculateAffine();
         return *this;
     }
     Sprite &setWidth(int width)
     {
         _width = width;
-        if (enableAffine)
-            calculateAffineTransformMatrix(_x, _y, _cx, _cy,_width,_height, _angle, _scale);
+        calculateAffine();
         return *this;
     }
     Sprite &setHeight(int height)
     {
         _height = height;
-        if (enableAffine)
-            calculateAffineTransformMatrix(_x, _y, _cx, _cy,_width,_height, _angle, _scale);
+        calculateAffine();
         return *this;
     }
     Sprite &setAngle(float angle)
     {
         _angle = angle;
-        if (enableAffine)
-            calculateAffineTransformMatrix(_x, _y, _cx, _cy,_width,_height, _angle, _scale);
+        calculateAffine();
         return *this;
     }
     // duration秒かけてangleに変化させる
@@ -139,12 +158,61 @@ void calculateAffineTransformMatrix(float x, float y, float cx, float cy, float 
     Sprite &setScale(float scale)
     {
         _scale = scale;
-        if (enableAffine)
-            calculateAffineTransformMatrix(_x, _y, _cx, _cy,_width,_height, _angle, _scale);
-
+        calculateAffine();
+        return *this;
+    }
+    Sprite& setOrigin(int x, int y)
+    {
+        _cx = x;
+        _cy = y;
+        calculateAffine();
+        return *this;
+    }
+    Sprite& setOriginCenter()
+    {
+        _cx = width() / 2;
+        _cy = height() / 2;
+        calculateAffine();
         return *this;
     }
 
+    float centerx()
+    {
+        return width() / 2;
+    }
+    float centery()
+    {
+        return height() / 2;
+    }
+    float x()
+    {
+        return _x -cx();
+    }
+    float y()
+    {
+        return _y -cy();
+    }
+    float width()
+    {
+        return _width * _scale;
+    }
+    float height()
+    {
+        return _height * _scale;
+    }
+    float cx()
+    {
+        return _cx;
+    }
+    float cy()
+    {
+        return _cy;
+    }
+    Sprite &setTag(String tag)
+    {
+        this->tag = tag;
+        return *this;
+    }
 
     Sprite &setTextColor(uint16_t color)
     {
@@ -358,8 +426,11 @@ void calculateAffineTransformMatrix(float x, float y, float cx, float cy, float 
     // 中心点を設定する
     void setPivotCenter(void)
     {
-        canvas.setPivot(width() / 2.0f, (float)height() / 2.0f);
+        canvas.setPivot(width() / 2.0f, height() / 2.0f);
+            
+        calculateAffine();
     }
+    /*
     void pushBackground(void)
     {
         uint8_t *buffer = new uint8_t[width() * height() * _depth / 8];
@@ -379,7 +450,7 @@ void calculateAffineTransformMatrix(float x, float y, float cx, float cy, float 
             _shouldBackup = false;
         }
     }
-
+*/
     uint32_t convertColor(uint32_t color)
     {
         if (_depth == 8)
@@ -433,37 +504,15 @@ void calculateAffineTransformMatrix(float x, float y, float cx, float cy, float 
         _width = width;
         _height = height;
 
-        _cx = width / 2;
-        _cy = height / 2;
+        _cx = 0;
+        _cy = 0;
+        _angle = 0.0f;
+        _scale = 1.0f;
 
         return true;
     }
 
-#pragma region Property
-    int x()
-    {
-        return _x;
-    }
-    void x(int value)
-    {
-        _x = value;
-    }
-    int y()
-    {
-        return _y;
-    }
-    void y(int value)
-    {
-        _y = value;
-    }
-    int width()
-    {
-        return canvas.width();
-    }
-    int height()
-    {
-        return canvas.height();
-    }
+
 #pragma endregion
     void redraw()
     {
@@ -486,7 +535,7 @@ void calculateAffineTransformMatrix(float x, float y, float cx, float cy, float 
         // 背景バックアップONの場合は背景を復帰
         if (_shouldBackup)
         {
-            popBackground();
+            //popBackground();
         }
         if (_shouldRedraw)
         {
@@ -494,7 +543,7 @@ void calculateAffineTransformMatrix(float x, float y, float cx, float cy, float 
             _shouldRedraw = false;
             shouldRefresh = true;
         }
-        canvas.pushSprite(parentCanvas, _x, _y);
+        canvas.pushSprite(parentCanvas, x(), y());
         return shouldRefresh;
     }
 
@@ -555,6 +604,21 @@ void calculateAffineTransformMatrix(float x, float y, float cx, float cy, float 
         _y = result.second;
         return true;
     }
+    float angle(){
+        return _angle;
+    }
+    float scale(){
+        return _scale;
+    }
+    bool rotate(float angle)
+    {
+        _angle = angle;
+        return true;
+    }
+    int depth()
+    {
+        return _depth;
+    }   
 
     std::pair<int, int> getScreenPosition(PositionType pos)
     {

@@ -17,11 +17,11 @@ public:
 
     ImageSprite(M5Canvas* pDisplay) : Sprite(pDisplay) {
     }
-    ImageSprite(M5Canvas* pDisplay,const uint8_t* data,int width,int height,int x=0,int y=0,bool enableTransparent = true,uint16_t transparentColor = TFT_BLACK) : Sprite(pDisplay,width,height,x,y) {
+    ImageSprite(M5Canvas* pDisplay,const uint8_t* data,int width,int height,int x=0,int y=0,bool enableTransparent = false,uint16_t transparentColor = TFT_BLACK) : Sprite(pDisplay,width,height,x,y) {
         this->pImage = (uint8_t*)data;
         this->_imageWidth = width;
         this->_imageHeight = height;
-        this->enableTransparent = convertColor(enableTransparent);
+        this->enableTransparent = enableTransparent;
         this->_transparentColor = transparentColor;
 
         this->_width = width;

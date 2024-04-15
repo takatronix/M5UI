@@ -57,6 +57,9 @@ public:
     static void stop() {
         M5.Speaker.stop();
     }
+    static void mute() {
+        M5.Speaker.stop();
+    }
 
     static void tone(int freq, int duration = -1) {
         M5.Speaker.tone(freq);

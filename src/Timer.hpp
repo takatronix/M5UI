@@ -8,12 +8,15 @@ public:
   Timer(unsigned long duration)
   : _duration(duration), _startTime(0), _isRunning(false) {}
 
-  // タイマーを開始するメソッド。コールバック関数を引数に取る。
-  Timer& start(std::function<void()> callback) {
+  // タイマーを開始する。時間とコールバック関数を引数に取る。
+  void start(unsigned long duration, std::function<void()> callback) {
+    _duration = duration;
+    _callback = callback;
     _startTime = millis();
     _isRunning = true;
-    _callback = callback;
   }
+
+
 
   // タイマーが経過したかどうかをチェックし、必要に応じてコールバックを実行
   void update() {
