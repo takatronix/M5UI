@@ -23,55 +23,22 @@ public:
         this->_imageHeight = height;
         this->enableTransparent = enableTransparent;
         this->_transparentColor = transparentColor;
-
         this->_width = width;
         this->_height = height;
-        this->_cx = width/2;
-        this->_cy = height/2;
         Sprite::add(this);
     }
     // 画像をpushするのでdrawは何もする必要なし(Debug情報のみ)
     void draw(){
     }
     virtual bool push(void){
-        return push(parentCanvas);
+        return pushImage(parentCanvas,this->pImage);
     }
+/*
     bool pushImage(int x,int y){
         parentCanvas->pushImage(x,y,_imageWidth,_imageHeight,pImage);
     }
     bool pushImage(M5Canvas *pCanvas,int x,int y){
         pCanvas->pushImage(x,y,_imageWidth,_imageHeight,pImage);
     }
-    bool push(M5Canvas *pCanvas){
-        if(pImage == NULL){
-            return false;
-        }
-        //LOG_V("ImageSprite::push() x:%d y:%d width:%d height:%d",_x,_y,_width,_height);
-        if(enableAffine){
-
-            if(enableAA){
-                if(enableTransparent)
-                    pCanvas->pushImageAffineWithAA(_matrix,_width,_height,pImage,_transparentColor);
-                else
-                    pCanvas->pushImageAffineWithAA(_matrix,_width,_height,pImage);
-            }
-            else{
-                if(enableTransparent)
-                    pCanvas->pushImageAffine(_matrix,_width,_height,pImage,_transparentColor);
-                else
-                    pCanvas->pushImageAffine(_matrix,_width,_height,pImage);
-            }
-            return true;
-        }
-
-        if(enableTransparent){
-            pCanvas->pushImage(_x,_y,_width,_height,pImage,_transparentColor);
-        }
-        else{
-            pCanvas->pushImage(_x,_y,_width,_height,pImage);
-        }
-        return true;
-
-    }
-
+*/
 };

@@ -41,6 +41,7 @@ protected:
     uint16_t _transparentColor = 0;
     float _matrix[6] = {1, 0, 0, 0, 1, 0};
 
+    void* _buffer = NULL;
 public:
     int _id;
     String tag;
@@ -49,51 +50,26 @@ public:
     bool enableAffine = false;
     bool enableAA = false;
 
-void calculateAffineTransformMatrixx(float x, float y, float cx, float cy, float width, float height, float angle=0.0f, float scale=1.0f) {
-    // 回転の角度をラジアンに変換
-    float rad = angle * (M_PI / 180.0f);
+    void calculateAffineTransformMatrix(float x,float y,float cx, float cy, float angle=0.0f, float scale=1.0f) {
+        // 回転の角度をラジアンに変換
+        float rad = angle * (M_PI / 180.0f);
 
-    // 画像の中心座標を計算（グローバル座標系での位置）
-    float centerX = x + cx + width / 2;
-    float centerY = y + cy + height / 2;
+        // 回転とスケールを行列に組み込む
+        _matrix[0] = cos(rad) * scale; // a: x'のxに対する係数
+        _matrix[1] = -sin(rad) * scale; // b: x'のyに対する係数
+        _matrix[3] = sin(rad) * scale; // d: y'のxに対する係数
+        _matrix[4] = cos(rad) * scale; // e: y'のyに対する係数
 
-    // ステップ1: 画像中心を原点に移動するための補正
-    //float correctedX = -width / 2;
-    //float correctedY = -height / 2;
-    float correctedX = 0;
-    float correctedY = 0;
-    // アフィン変換行列の計算
-    _matrix[0] = cos(rad) * scale; // 0行0列
-    _matrix[1] = -sin(rad) * scale; // 0行1列
-    _matrix[2] = centerX + correctedX * cos(rad) - correctedY * sin(rad); // 平行移動x
-    _matrix[3] = sin(rad) * scale; // 1行0列
-    _matrix[4] = cos(rad) * scale; // 1行1列
-    _matrix[5] = centerY + correctedX * sin(rad) + correctedY * cos(rad); // 平行移動y
-}
-void calculateAffineTransformMatrix(float x,float y,float cx, float cy, float angle=0.0f, float scale=1.0f) {
-    // 回転の角度をラジアンに変換
-    float rad = angle * (M_PI / 180.0f);
-
-    // 回転とスケールを行列に組み込む
-    _matrix[0] = cos(rad) * scale; // a: x'のxに対する係数
-    _matrix[1] = -sin(rad) * scale; // b: x'のyに対する係数
-    _matrix[3] = sin(rad) * scale; // d: y'のxに対する係数
-    _matrix[4] = cos(rad) * scale; // e: y'のyに対する係数
-
-    // 平行移動の計算
-    // 中心点を原点に移動してから回転し、その後(x, y) に移動
-    _matrix[2] = -cx * cos(rad) + cy * sin(rad) + cx + x; // c: x'の平行移動成分
-    _matrix[5] = -cx * sin(rad) - cy * cos(rad) + cy + y; // f: y'の平行移動成分
-
-}
-
-
+        // 平行移動の計算
+        // 中心点を原点に移動してから回転し、その後(x, y) に移動
+        _matrix[2] = -cx * cos(rad) + cy * sin(rad) + cx + x; // c: x'の平行移動成分
+        _matrix[5] = -cx * sin(rad) - cy * cos(rad) + cy + y; // f: y'の平行移動成分
+    }
 
     void calculateAffine()
     {
         calculateAffineTransformMatrix(x(),y(),cx(),cy(),_angle,_scale);
     }
-
 
     Sprite &setX(int x)
     {
@@ -397,7 +373,7 @@ void calculateAffineTransformMatrix(float x,float y,float cx, float cy, float an
     bool _psram = false;
 
     M5Canvas canvas;           // スプライトのキャンバス
-    M5Canvas backgroundCanvas; // 画面書き戻し用のキャンバス
+    //M5Canvas backgroundCanvas; // 画面書き戻し用のキャンバス
     Sprite(M5Canvas *parent) : parentCanvas(parent)
     {
         parentCanvas = parent;
@@ -486,12 +462,15 @@ void calculateAffineTransformMatrix(float x,float y,float cx, float cy, float an
 
         canvas.setPsram(psram);
         canvas.setColorDepth(depth);
-        if (canvas.createSprite(width, height) == NULL)
+
+        _buffer = canvas.createSprite(width, height);
+        if (_buffer == NULL)
         {
             LOG_E("Sprite create error");
             return false;
         }
 
+/*
         backgroundCanvas.setPsram(psram);
         backgroundCanvas.setColorDepth(depth);
         if (backgroundCanvas.createSprite(width, height) == NULL)
@@ -500,7 +479,7 @@ void calculateAffineTransformMatrix(float x,float y,float cx, float cy, float an
             canvas.deleteSprite();
             return false;
         }
-
+*/
         _width = width;
         _height = height;
 
@@ -521,7 +500,8 @@ void calculateAffineTransformMatrix(float x,float y,float cx, float cy, float an
     virtual void draw()
     {
         // debug
-        canvas.clear(TFT_RED);
+        canvas.clear(TFT_BLUE);
+        canvas.drawCircle(width() / 2, height() / 2, 10, TFT_RED);
         canvas.setCursor(0, 0);
         canvas.printf("%s(%d)\n", tag.c_str(), _id);
         canvas.printf("%d,%d\n", _x, _y);
@@ -529,24 +509,52 @@ void calculateAffineTransformMatrix(float x,float y,float cx, float cy, float an
     }
 
 #pragma region Push
+
     virtual bool push(void)
     {
         bool shouldRefresh = false;
-        // 背景バックアップONの場合は背景を復帰
-        if (_shouldBackup)
-        {
-            //popBackground();
-        }
         if (_shouldRedraw)
         {
             draw();
             _shouldRedraw = false;
             shouldRefresh = true;
         }
-        canvas.pushSprite(parentCanvas, x(), y());
+                 pushImage(parentCanvas,(uint8_t*)this->_buffer);
+
         return shouldRefresh;
     }
 
+    template<typename T>
+    bool pushImage(M5Canvas *pCanvas,T *pImage){
+        if(pImage == NULL){
+            return false;
+        }
+        if(enableAffine){
+            if(enableAA){
+                if(enableTransparent)
+                    pCanvas->pushImageAffineWithAA(_matrix,_width,_height,pImage,_transparentColor);
+                else
+                    pCanvas->pushImageAffineWithAA(_matrix,_width,_height,pImage);
+            }
+            else{
+                if(enableTransparent)
+                    pCanvas->pushImageAffine(_matrix,_width,_height,pImage,_transparentColor);
+                else
+                    pCanvas->pushImageAffine(_matrix,_width,_height,pImage);
+            }
+            return true;
+        }
+
+        if(enableTransparent){
+            pCanvas->pushImage(_x,_y,_width,_height,pImage,_transparentColor);
+        }
+        else{
+            pCanvas->pushImage(_x,_y,_width,_height,pImage);
+        }
+        return true;
+    }
+
+    
 #pragma endregion
 
 #pragma region Move
@@ -554,6 +562,8 @@ void calculateAffineTransformMatrix(float x,float y,float cx, float cy, float an
     {
         if (_x == x && _y == y)
             return;
+
+        calculateAffine();
         if (duration == 0)
         {
             _x = x;
@@ -562,10 +572,17 @@ void calculateAffineTransformMatrix(float x,float y,float cx, float cy, float an
         }
 
         Tween::create(_x, x, duration, type, loop)->start().onUpdate([this](float progress, float value)
-                                                                     { _x = value; });
+                                                                     { _x = value; 
+                                                                     
+                                                                             calculateAffine();
+
+                                                                     });
 
         Tween::create(_y, y, duration, type, loop)->start().onUpdate([this](float progress, float value)
-                                                                     { _y = value; });
+                                                                     { _y = value;
+                                                                             calculateAffine();
+
+                                                                      });
     }
 
     void moveToTopLeft(void)

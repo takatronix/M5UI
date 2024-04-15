@@ -6,7 +6,7 @@ public:
     String text;
     TextSprite(M5Canvas* pDisplay) : Sprite(pDisplay) {
     }
-    TextSprite(M5Canvas* pDisplay,int width,int height,int x=0,int y=0,int depth = 16,bool psram = false) : Sprite(pDisplay,width,height,x,y,depth,psram) {
+    TextSprite(M5Canvas* pDisplay,int width,int height,int x=0,int y=0,int depth = M5UI_COLOR_DEPTH,bool psram = false) : Sprite(pDisplay,width,height,x,y,depth,psram) {
         if (create(width, height, x, y, depth, psram) == NULL)
         {
             LOG_E("Text Sprite create error");

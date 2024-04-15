@@ -9,7 +9,7 @@ M5UICanvas screen(&M5.Display);
 Sprite test(&screen,50,50,100,100 );
 
 // sprites -> offscreen buffer
-ImageSprite man10(&screen,image_man10_blue, 26, 54,160,120);  
+ImageSprite man10(&screen,image_man10_blue, 26, 54,160,120,true,0x03);  
 
 TextSprite fps(&screen,60,16);
 TextSprite drawTime(&screen,50,16);
@@ -23,7 +23,7 @@ struct Star {
   uint32_t color;  // 星の色
 };
 
-constexpr int numStars = 300;
+constexpr int numStars = 1000;
 Star stars[numStars];
 constexpr int centerX = 160;  // 画面中心のX座標
 constexpr int centerY = 120;  // 画面中心のY座標
@@ -69,6 +69,12 @@ void setup() {
  // man10.setPivotCenter();
 
     man10.setOriginCenter();
+  test.enableAffine = false;
+  test.enableTransparent = true;
+  test.setTransparentColor(0x03);
+
+  //test.setScale(1.5);
+  fps.enableAffine = true;
 
 }
 
@@ -102,7 +108,7 @@ void loop() {
 
   int x = random(0,320);
   int y = random(0,240);
-  test.moveTo(x,y);
+  test.moveTo(x,y,10);
 
  if (M5.Touch.isEnabled()) {
     // タッチしたX座標、Y座標を取得する
@@ -115,8 +121,8 @@ void loop() {
     auto d = t.isDragging();
     auto f = t.isFlicking();
     auto c = t.getClickCount();
-    if(x!=-1 && y!=-1){
-    LOG_D("touch is x:%d y:%d p:%d r:%d h:%d d:%d f:%d c:%d",x,y,p,r,h,d,f,c);
+    if(t.isPressed()){
+      LOG_D("pressed is x:%d y:%d p:%d r:%d h:%d d:%d f:%d c:%d",x,y,p,r,h,d,f,c);
      //  man10.setX(x);
       // man10.setY(y);
 
@@ -133,37 +139,23 @@ void loop() {
     man10.setOrigin(0,0);
     animationName.setText("reset"); 
   }
-  if(M5.BtnA.wasHold()){
-    man10.setAngle(0);
-    man10.setScale(1);
-    man10.setOriginCenter();
-    animationName.setText("reset"); 
-  }
-
-  if(M5.BtnB.wasPressed()) {
-    float angle = man10.angle();
-    man10.setAngle(angle+10 );
-    man10.setOriginCenter();
-  //  man10.setPivotCenter();  
-  }
-  if(M5.BtnB.wasHold()){
-      man10.setAngle(0);
-      man10.setScale(3);
-      man10.setOrigin(0,0);
-      animationName.setText("reset"); 
-    }
 
 
-  if(M5.BtnC.wasPressed()) {
+  if(M5.BtnB.isPressed()){
+      float angle = man10.angle();
+      man10.setAngle(man10.angle()+5);
+      man10.setOriginCenter();
+   }
+
+  if(M5.BtnC.isPressed()) {
     float scale = man10.scale();
-    man10.setScale(scale+0.1);
+    scale *= 1.1;
+    man10.setScale(scale);
     man10.setOriginCenter();
-   // man10.setPivotCenter();
-
-  //  Sound::playNote(Note::C4,-1);
-
-    
   }
+
+
+
   battery.setText(String(Device::getBatteryLevel()) + "%");
   fps.setText(String(screen.getFPS()) + "FPS");
   drawTime.setText(String(screen.getDrawTime()) + "ms");
