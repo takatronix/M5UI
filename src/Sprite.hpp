@@ -5,20 +5,34 @@
 #define M5UI_COLOR_DEPTH 8
 #endif
 
-enum PositionType
+enum LayoutType
 {
     None,
-    TopLeft,
-    TopCenter,
-    TopRight,
-    MiddleLeft,
-    MiddleCenter,
-    MiddleRight,
-    BottomLeft,
-    BottomCenter,
-    BottomRight,
-    Center,
+    /* 画面の絶対位置 */
+    ScreenTopLeft,
+    ScreenTopCenter,
+    ScreenTopRight,
+    ScreenBottomLeft,
+    ScreenBottomCenter,
+    ScreenBottomRight,
+    ScreenCenter,
+    ScreenMiddleLeft,
+    ScreenMiddleRight,
+
+    /* スプライトとの相対位置 */
+    /* オブジェクトの右側 */
+    Right,
+    /* オブジェクトの左側 */
+    Left,
+    /* オブジェクトの上側 */
+    Top,
+    /* オブジェクトの下側 */
+    Bottom,
+    /* オブジェクトの中心 */
+    
+
 };
+
 class Sprite
 {
 protected:
@@ -37,7 +51,6 @@ protected:
 
     int _textSize;
     uint16_t _textColor;
-    uint16_t _backgroundColor;
     uint16_t _transparentColor = 0;
     float _matrix[6] = {1, 0, 0, 0, 1, 0};
 
@@ -45,10 +58,10 @@ protected:
 public:
     int _id;
     String tag;
-    PositionType positionType = PositionType::None;
-    bool enableTransparent = false;
-    bool enableAffine = false;
-    bool enableAA = false;
+    LayoutType layoutType = LayoutType::None;
+    bool EnableTransparent = false;
+    bool EnableAffine = true;
+    bool EnableAntiAlias = false;
 
     void calculateAffineTransformMatrix(float x,float y,float cx, float cy, float angle=0.0f, float scale=1.0f) {
         // 回転の角度をラジアンに変換
@@ -120,23 +133,43 @@ public:
             return *this;
         if (duration == 0)
         {
-            _angle = angle;
+            setAngle(angle);
             return *this;
         }
-        Tween::create(_angle, angle, duration, type, loop)->start().onUpdate([this](float progress, float value)
-                                                                             { _angle = value; })
-            .onComplete([this, callback]()
-                        {
-            if(callback != NULL) callback(); });
+        Tween::create(_angle, angle, duration, type)->start()
+            .onUpdate([this](float progress, float value){
+                setAngle(value); 
+             })
+            .onComplete([this, callback](){
+                if(callback != NULL) callback(); 
+            });
         return *this;
     }
-
     Sprite &setScale(float scale)
     {
         _scale = scale;
         calculateAffine();
         return *this;
     }
+    Sprite &setScale(float scale, int duration, TweenType type = TweenType::LINEAR, std::function<void()> callback = NULL){
+        if (_scale == scale)
+            return *this;
+        if (duration == 0)
+        {
+            setScale(scale);
+            return *this;
+        }
+        Tween::create(_scale, scale, duration, type)->start()
+            .onUpdate([this](float progress, float value){
+                setScale(value); 
+             })
+            .onComplete([this, callback](){
+                if(callback != NULL) callback(); 
+            });
+        return *this;
+    }
+
+
     Sprite& setOrigin(int x, int y)
     {
         _cx = x;
@@ -196,12 +229,13 @@ public:
         canvas.setTextColor(color);
         return *this;
     }
-    Sprite &setBackgroundColor(uint16_t color)
+    Sprite &setBaseColor(uint16_t color)
     {
-        _backgroundColor = color;
-        // canvas.setBackgroundColor(color);
+        canvas.setBaseColor(color);       
         return *this;
     }
+
+
     Sprite &setTextSize(int size)
     {
         _textSize = size;
@@ -211,7 +245,7 @@ public:
     Sprite &setTransparentColor(uint16_t color)
     {
         _transparentColor = color;
-        enableTransparent = true;
+        EnableTransparent = true;
         // canvas.setTransparentColor(color);
         return *this;
     }
@@ -224,10 +258,13 @@ public:
         bool shouldRefresh = false;
         for (int i = 0; i < _sprites.size(); i++)
         {
-            if (_sprites[i]->push())
-            {
+            Sprite* sprite = _sprites[i];
+            if(sprite->onUpdate() || sprite->_shouldRedraw){
+                sprite->onDraw();
                 shouldRefresh = true;
+                sprite->_shouldRedraw = false;
             }
+            sprite->push();
         }
         return shouldRefresh;
     }
@@ -373,19 +410,24 @@ public:
     bool _psram = false;
 
     M5Canvas canvas;           // スプライトのキャンバス
-    //M5Canvas backgroundCanvas; // 画面書き戻し用のキャンバス
-    Sprite(M5Canvas *parent) : parentCanvas(parent)
+
+    Sprite(M5Canvas *parent, int width=0, int height=0, int x = 0, int y = 0, int depth = M5UI_COLOR_DEPTH, bool psram = false) : parentCanvas(parent)
     {
-        parentCanvas = parent;
-    }
-    Sprite(M5Canvas *parent, int width, int height, int x = 0, int y = 0, int depth = M5UI_COLOR_DEPTH, bool psram = false) : parentCanvas(parent)
-    {
+
         parentCanvas = parent;
         if (create(width, height, x, y, depth, psram) == NULL)
         {
             LOG_E("Sprite create error");
         }
+        canvas.setTextScroll(true);
         Sprite::add(this);
+    }
+    void resize(int width,int height){
+
+        if (create(width, height, _x, _y, _depth, _psram) == NULL)
+        {
+            LOG_E("Sprite create error");
+        }
     }
     int id()
     {
@@ -406,42 +448,23 @@ public:
             
         calculateAffine();
     }
-    /*
-    void pushBackground(void)
-    {
-        uint8_t *buffer = new uint8_t[width() * height() * _depth / 8];
-        parentCanvas->readRect(_x, _y, width(), height(), buffer);
-        backgroundCanvas.pushImage(0, 0, width(), height(), buffer);
-        delete[] buffer;
-        _shouldBackup = true;
-    }
-    void popBackground(void)
-    {
-        if (_shouldBackup)
-        {
-            uint8_t *buffer = new uint8_t[width() * height() * _depth / 8];
-            backgroundCanvas.readRect(0, 0, width(), height(), buffer);
-            parentCanvas->pushImage(_x, _y, width(), height(), buffer);
-            delete[] buffer;
-            _shouldBackup = false;
-        }
-    }
-*/
-    uint32_t convertColor(uint32_t color)
+
+    uint32_t convertColor(uint16_t color)
     {
         if (_depth == 8)
-            return M5.Lcd.color16to8(color);
+            return M5.Display.color16to8(color);
         return color;
     }
 
     void clear(uint16_t color = TFT_BLACK)
     {
         canvas.setCursor(0, 0);
+        /*
         if (_depth == 8)
         {
             canvas.fillSprite(M5.Lcd.color16to8(color));
             return;
-        }
+        }*/
         canvas.fillSprite(color);
     }
 
@@ -460,6 +483,7 @@ public:
         _depth = depth;
         _psram = psram;
 
+        canvas.deleteSprite();
         canvas.setPsram(psram);
         canvas.setColorDepth(depth);
 
@@ -470,16 +494,6 @@ public:
             return false;
         }
 
-/*
-        backgroundCanvas.setPsram(psram);
-        backgroundCanvas.setColorDepth(depth);
-        if (backgroundCanvas.createSprite(width, height) == NULL)
-        {
-            LOG_E("Sprite create error");
-            canvas.deleteSprite();
-            return false;
-        }
-*/
         _width = width;
         _height = height;
 
@@ -497,7 +511,7 @@ public:
     {
         _shouldRedraw = true;
     }
-    virtual void draw()
+    virtual void onDraw(void)
     {
         // debug
         canvas.clear(TFT_BLUE);
@@ -507,21 +521,16 @@ public:
         canvas.printf("%d,%d\n", _x, _y);
         canvas.printf("%d,%d\n", _width, _height);
     }
+    virtual bool onUpdate(void)
+    {
+        return false;
+    }
 
 #pragma region Push
 
-    virtual bool push(void)
+    virtual void push(void)
     {
-        bool shouldRefresh = false;
-        if (_shouldRedraw)
-        {
-            draw();
-            _shouldRedraw = false;
-            shouldRefresh = true;
-        }
-                 pushImage(parentCanvas,(uint8_t*)this->_buffer);
-
-        return shouldRefresh;
+        pushImage(parentCanvas,(uint8_t*)this->_buffer);
     }
 
     template<typename T>
@@ -529,15 +538,15 @@ public:
         if(pImage == NULL){
             return false;
         }
-        if(enableAffine){
-            if(enableAA){
-                if(enableTransparent)
+        if(EnableAffine){
+            if(EnableAntiAlias){
+                if(EnableTransparent)
                     pCanvas->pushImageAffineWithAA(_matrix,_width,_height,pImage,_transparentColor);
                 else
                     pCanvas->pushImageAffineWithAA(_matrix,_width,_height,pImage);
             }
             else{
-                if(enableTransparent)
+                if(EnableTransparent)
                     pCanvas->pushImageAffine(_matrix,_width,_height,pImage,_transparentColor);
                 else
                     pCanvas->pushImageAffine(_matrix,_width,_height,pImage);
@@ -545,7 +554,7 @@ public:
             return true;
         }
 
-        if(enableTransparent){
+        if(EnableTransparent){
             pCanvas->pushImage(_x,_y,_width,_height,pImage,_transparentColor);
         }
         else{
@@ -558,7 +567,7 @@ public:
 #pragma endregion
 
 #pragma region Move
-    void moveTo(int x, int y, unsigned long duration = 100, TweenType type = TweenType::LINEAR, bool loop = false)
+    void moveTo(int x, int y, unsigned long duration = 100, TweenType type = TweenType::LINEAR)
     {
         if (_x == x && _y == y)
             return;
@@ -571,14 +580,14 @@ public:
             return;
         }
 
-        Tween::create(_x, x, duration, type, loop)->start().onUpdate([this](float progress, float value)
+        Tween::create(_x, x, duration, type)->start().onUpdate([this](float progress, float value)
                                                                      { _x = value; 
                                                                      
                                                                              calculateAffine();
 
                                                                      });
 
-        Tween::create(_y, y, duration, type, loop)->start().onUpdate([this](float progress, float value)
+        Tween::create(_y, y, duration, type)->start().onUpdate([this](float progress, float value)
                                                                      { _y = value;
                                                                              calculateAffine();
 
@@ -595,32 +604,36 @@ public:
         _x = M5.Display.width() - width();
         _y = 0;
     }
+    void moveToCenter(){
+        _x = M5.Display.width() / 2;
+        _y = M5.Display.height() / 2;    
+    }
 
 #pragma endregion
     bool updatePosition()
     {
-        if (positionType == PositionType::None)
+        if (layoutType == LayoutType::None)
             return false;
-        auto pos = getScreenPosition(positionType);
-        _x = pos.first;
-        _y = pos.second;
+        auto pos = getScreenPosition(layoutType);
+        setPosition(pos.first,pos.second);
         return true;
     }
-    bool setPositionType(PositionType pos)
+    bool setLayout(LayoutType pos)
     {
-        this->positionType = pos;
+        this->layoutType = pos;
         auto result = getScreenPosition(pos);
-        _x = result.first;
-        _y = result.second;
+        setPosition(result.first,result.second);
         return true;
     }
-    bool setPosition(PositionType pos)
+    bool setPosition(int x,int y)
     {
-        auto result = getScreenPosition(pos);
-        _x = result.first;
-        _y = result.second;
+        _x = x;
+        _y = y;
+        calculateAffine();
         return true;
     }
+
+
     float angle(){
         return _angle;
     }
@@ -637,50 +650,64 @@ public:
         return _depth;
     }   
 
-    std::pair<int, int> getScreenPosition(PositionType pos)
+    std::pair<int, int> getScreenPosition(LayoutType pos)
     {
         switch (pos)
         {
-        case PositionType::TopLeft:
+        case LayoutType::ScreenTopLeft:
             return std::make_pair(0, 0);
             break;
-        case PositionType::TopRight:
+        case LayoutType::ScreenTopRight:
             return std::make_pair(M5.Display.width() - width(), 0);
             break;
-        case PositionType::TopCenter:
+        case LayoutType::ScreenTopCenter:
             return std::make_pair((M5.Display.width() - width()) / 2, 0);
             break;
-        case PositionType::MiddleLeft:
+        case LayoutType::ScreenMiddleLeft:
             return std::make_pair(0, (M5.Display.height() - height()) / 2);
             break;
-        case PositionType::MiddleRight:
+        case LayoutType::ScreenMiddleRight:
             return std::make_pair(M5.Display.width() - width(), (M5.Display.height() - height()) / 2);
             break;
-        case PositionType::BottomLeft:
+        case LayoutType::ScreenBottomLeft:
             return std::make_pair(0, M5.Display.height() - height());
             break;
-        case PositionType::BottomRight:
-            // 0割りエラー対策
-            if (height() == 0)
-                return std::make_pair(0, 0);
+        case LayoutType::ScreenBottomRight:
             return std::make_pair(M5.Display.width() - width(), M5.Display.height() - height());
             break;
-        case PositionType::BottomCenter:
-            // 0割りエラー対策
-            if (height() == 0)
-                return std::make_pair(0, 0);
+        case LayoutType::ScreenBottomCenter:
             return std::make_pair((M5.Display.width() - width()) / 2, M5.Display.height() - height());
             break;
-        case PositionType::Center:
-            // 0割りエラー対策
-            if (height() == 0)
-                return std::make_pair(0, 0);
+        case LayoutType::ScreenCenter:
             return std::make_pair((M5.Display.width() - width()) / 2, (M5.Display.height() - height()) / 2);
             break;
         }
     }
+    
+    void printf(const char *format, ...)
+    {
+        char buffer[256];
+        va_list args;
+        va_start(args, format);
+        vsprintf(buffer, format, args);
+        va_end(args);
+        canvas.print(buffer);
+    }
+    void println(const char *format, ...)
+    {
+        char buffer[256];
+        va_list args;
+        va_start(args, format);
+        vsprintf(buffer, format, args);
+        va_end(args);
+        canvas.println(buffer);
+        
+    }
+
+
 #ifdef EFONT
 #pragma region Text
+    public:
     // スクロールの必要があればスクロール
     void scrollIfNeeded(int height)
     {
@@ -699,6 +726,16 @@ public:
         puts(message, _textSize, _textColor, _backgroundColor);
     }
     void printf(const char *format, ...)
+    {
+        char buffer[256];
+        va_list args;
+        va_start(args, format);
+        vsprintf(buffer, format, args);
+        va_end(args);
+
+        puts(buffer, _textColor, _backgroundColor);
+    }
+    void print(const char *format, ...)
     {
         char buffer[256];
         va_list args;

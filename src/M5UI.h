@@ -17,4 +17,6 @@
 #include "Sprite.hpp"
 #include "TextSprite.hpp"
 #include "ImageSprite.hpp"
+#include "BatterySprite.hpp"
+#include "ConsoleSprite.hpp"
 #include "M5UICanvas.hpp"

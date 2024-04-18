@@ -17,21 +17,21 @@ public:
 
     ImageSprite(M5Canvas* pDisplay) : Sprite(pDisplay) {
     }
-    ImageSprite(M5Canvas* pDisplay,const uint8_t* data,int width,int height,int x=0,int y=0,bool enableTransparent = false,uint16_t transparentColor = TFT_BLACK) : Sprite(pDisplay,width,height,x,y) {
+    ImageSprite(M5Canvas* pDisplay,const uint8_t* data,int width,int height,int x=0,int y=0,bool EnableTransparent = false,uint16_t transparentColor = TFT_BLACK) : Sprite(pDisplay,width,height,x,y) {
         this->pImage = (uint8_t*)data;
         this->_imageWidth = width;
         this->_imageHeight = height;
-        this->enableTransparent = enableTransparent;
+        this->EnableTransparent = EnableTransparent;
         this->_transparentColor = transparentColor;
         this->_width = width;
         this->_height = height;
         Sprite::add(this);
     }
-    // 画像をpushするのでdrawは何もする必要なし(Debug情報のみ)
-    void draw(){
+    // 画像をpushするのでdrawは何もする必要なし
+    virtual void onDraw(void){
     }
-    virtual bool push(void){
-        return pushImage(parentCanvas,this->pImage);
+    virtual void push(void){
+        pushImage(parentCanvas,this->pImage);
     }
 /*
     bool pushImage(int x,int y){

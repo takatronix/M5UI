@@ -73,9 +73,9 @@ public:
         _tweens.erase(std::remove(_tweens.begin(), _tweens.end(), tween), _tweens.end());
         delete tween;
     }
-    static Tween *create(float start, float end, unsigned long duration, TweenType type = TweenType::LINEAR, bool loop = false)
+    static Tween *create(float start, float end, unsigned long duration, TweenType type = TweenType::LINEAR)
     {
-        Tween *tween = new Tween(start, end, duration, type, loop);
+        Tween *tween = new Tween(start, end, duration, type);
         tween->_id = _tweenNo++;
         addTween(tween);
         return tween;
@@ -83,7 +83,6 @@ public:
 
     static void updateAll()
     {
-//        LOG_D("Tween Count:%d",_tweens.size());
         for (auto it = _tweens.begin(); it != _tweens.end();)
         {
             Tween *tween = *it;
@@ -93,16 +92,16 @@ public:
             }
             else
             {
-                LOG_D("Tween Complete %s id:%d",tween->getName(),tween->_id);
                 removeTween(tween);
+                LOG_D("Tween Complete %s id:%d",tween->getName(),tween->_id);
             }
         }
     }
 
 #pragma endregion
 
-    Tween(float start, float end, unsigned long duration, TweenType type = TweenType::LINEAR, bool loop = false)
-        : _startValue(start), _endValue(end), _duration(duration), _type(type), _loop(loop), _isRunning(false), _isCompleted(true) {}
+    Tween(float start, float end, unsigned long duration, TweenType type = TweenType::LINEAR)
+        : _startValue(start), _endValue(end), _duration(duration), _type(type), _isRunning(false), _isCompleted(false) {}
 
     // アニメーション完了時に実行する関数を設定
     Tween& onComplete(std::function<void()> callback)
@@ -147,14 +146,12 @@ public:
         if (progress >= 1.0f)
         {
             progress = 1.0f;
-            _isRunning = false;
             _isCompleted = true;
+            _isRunning = false;
             if (_completionCallback){
                 _completionCallback();
                 _completionCallback = NULL;
             }
-            if (_loop)
-                start(); // ループが有効なら、再び開始する
         }
 
         // 選択されたイージング関数に基づいて値を計算
@@ -216,7 +213,6 @@ private:
     float _startValue, _endValue, _currentValue;
     unsigned long _duration, _startTime;
     TweenType _type;
-    bool _loop;
     bool _isRunning, _isCompleted;
     std::function<void()> _completionCallback;
     std::function<void(float,float)> _progressCallback;

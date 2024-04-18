@@ -8,7 +8,7 @@ M5UICanvas screen(&M5.Display);
 TextSprite battery(&screen,60,16);
 // FPS sprite
 TextSprite fps(&screen,60,16);
-// Time to draw the screen
+// Time to onDraw the screen
 TextSprite drawTime(&screen,50,16);
 
 TextSprite animationName(&screen,180,16);
@@ -26,10 +26,10 @@ void setup() {
   Sound::playNote(Note::E5,100);
   Sound::playNote(Note::A3,100);
   
-  battery.setPosition(PositionType::TopRight);
-  fps.setPosition(PositionType::TopLeft);
-  drawTime.setPosition(PositionType::TopCenter);
-  animationName.setPosition(PositionType::BottomCenter);
+  battery.setPosition(LayoutType::ScreenTopRight);
+  fps.setPosition(LayoutType::ScreenTopLeft);
+  drawTime.setPosition(LayoutType::ScreenTopCenter);
+  animationName.setPosition(LayoutType::ScreenBottomCenter);
 
   int size = 1;
   if(Device::isStack()) {
@@ -44,7 +44,7 @@ void setup() {
   tween =getNextTweenType();
 
   // 一番したに移動
-  ball.setPosition(PositionType::BottomCenter);
+  ball.setPosition(LayoutType::ScreenBottomCenter);
   ball.moveTo(ball.x(),0,tween,1000,true);
 
 }
@@ -60,7 +60,7 @@ void loop() {
     tween =getNextTweenType();
 
   // 一番したに移動
-    ball.setPosition(PositionType::BottomCenter);
+    ball.setPosition(LayoutType::ScreenBottomCenter);
     ball.moveTo(ball.x(),0,tween,1000,true);
   }
 
@@ -69,7 +69,7 @@ void loop() {
   battery.setText(String(Device::getBatteryLevel()) + "%");
   // Displays the number of frames per second
   fps.setText(String(screen.getFPS()) + "FPS");
-  // Displays the time it takes to draw the screen
+  // Displays the time it takes to onDraw the screen
   drawTime.setText(String(screen.getDrawTime()) + "ms");
 
   animationName.setText(Tween::tweenName(tween));

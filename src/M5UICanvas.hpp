@@ -20,8 +20,7 @@ public:
             int rotation = Device::getRotation();
             if(rotation != -1){
                 M5.Display.setRotation(rotation);
-
-                this->updateAllPosition();
+                this->updateSpritePosition();
             }
         }
 
@@ -32,7 +31,7 @@ public:
         pushSprite(0, 0);
         frameCount++;
     }
-    void updateAllPosition(){
+    void updateSpritePosition(){
         for(auto sprite : Sprite::_sprites){
             sprite->updatePosition();
         }
@@ -56,6 +55,7 @@ public:
         Sprite::add(sprite);
         return *this;
     }
+
 
     bool setup(bool canRotate = true)
     {

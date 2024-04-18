@@ -29,9 +29,9 @@ void setup() {
   screen.setTextSize(2);
   screen.println("Hello World");
 
-  battery.setPosition(PositionType::TopRight);
-  fps.setPosition(PositionType::TopLeft);
-  drawTime.setPosition(PositionType::TopCenter);
+  battery.setPosition(LayoutType::ScreenTopRight);
+  fps.setPosition(LayoutType::ScreenTopLeft);
+  drawTime.setPosition(LayoutType::ScreenTopCenter);
  
 
 }
