@@ -30,7 +30,7 @@ arduino-cli lib install --zip-path /path/to/M5UI.zip
 ## Supported devices (ESP32)
  - M5Stack Core (BASIC / GRAY / GO / FIRE)
  - M5Stack Core2 / Core2 v1.1 / Tough
- - M5Stick C / CPlus / CPlus2
+ - M5StickC Plus / Plus2
 
 ## Supported devices (ESP32-S3)
  - M5Stack CoreS3
