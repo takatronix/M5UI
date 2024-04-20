@@ -60,11 +60,11 @@ public:
     // デストラクタ
     ~Tween()
     {
-        LOG_D("Tween Delete %s id:%d",getName(),_id);
+        LOG_D("Tween Delete %s _id:%d",getName(),_id);
     }
     static void addTween(Tween *tween)
     {
-        LOG_D("Tween Add %s id:%d",tween->getName(),tween->_id);
+        LOG_D("Tween Add %s _id:%d",tween->getName(),tween->_id);
         _tweens.push_back(tween);
     }
 
@@ -93,7 +93,7 @@ public:
             else
             {
                 removeTween(tween);
-                LOG_D("Tween Complete %s id:%d",tween->getName(),tween->_id);
+                LOG_D("Tween Complete %s _id:%d",tween->getName(),tween->_id);
             }
         }
     }

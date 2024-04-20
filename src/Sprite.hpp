@@ -29,8 +29,6 @@ enum LayoutType
     /* オブジェクトの下側 */
     Bottom,
     /* オブジェクトの中心 */
-    
-
 };
 
 class Sprite
@@ -45,10 +43,7 @@ protected:
     static int _spriteNo;
     float _angle = 0.0f;
     float _scale = 1.0f;
-
-    bool _shouldBackup = false;
     bool _shouldRedraw = true;
-
     int _textSize;
     uint16_t _textColor;
     uint16_t _transparentColor = 0;
@@ -59,10 +54,10 @@ public:
     int _id;
     String tag;
     LayoutType layoutType = LayoutType::None;
-    bool EnableTransparent = false;
-    bool EnableAffine = true;
-    bool EnableAntiAlias = false;
-
+    bool enableTransparent = false;
+    bool enableAffine = true;
+    bool enableAntiAlias = false;
+    bool hidden = false;
     void calculateAffineTransformMatrix(float x,float y,float cx, float cy, float angle=0.0f, float scale=1.0f) {
         // 回転の角度をラジアンに変換
         float rad = angle * (M_PI / 180.0f);
@@ -78,7 +73,18 @@ public:
         _matrix[2] = -cx * cos(rad) + cy * sin(rad) + cx + x; // c: x'の平行移動成分
         _matrix[5] = -cx * sin(rad) - cy * cos(rad) + cy + y; // f: y'の平行移動成分
     }
-
+    Sprite& hide(){
+        hidden = true;
+        return *this;
+    }
+    Sprite& show(){
+        hidden = false;
+        return *this;
+    }
+    Sprite& toggle(){
+        hidden = !hidden;
+        return *this;
+    }
     void calculateAffine()
     {
         calculateAffineTransformMatrix(x(),y(),cx(),cy(),_angle,_scale);
@@ -235,7 +241,6 @@ public:
         return *this;
     }
 
-
     Sprite &setTextSize(int size)
     {
         _textSize = size;
@@ -245,7 +250,7 @@ public:
     Sprite &setTransparentColor(uint16_t color)
     {
         _transparentColor = color;
-        EnableTransparent = true;
+        enableTransparent = true;
         // canvas.setTransparentColor(color);
         return *this;
     }
@@ -255,24 +260,45 @@ public:
     static std::vector<Sprite *> _sprites;
     static bool updateAll()
     {
+        LOG_D("sprite count:%d", _sprites.size());
         bool shouldRefresh = false;
         for (int i = 0; i < _sprites.size(); i++)
         {
             Sprite* sprite = _sprites[i];
-            if(sprite->onUpdate() || sprite->_shouldRedraw){
-                sprite->onDraw();
+            if(sprite->update() || sprite->_shouldRedraw){
+                sprite->draw();
                 shouldRefresh = true;
                 sprite->_shouldRedraw = false;
             }
-            sprite->push();
+            if(!sprite->hidden)
+                sprite->push();
         }
         return shouldRefresh;
     }
-    static void setup()
+    static bool setupAll()
     {
-        _sprites.clear();
-        _spriteNo = 0;
+        bool hasError = false;
+        for (int i = 0; i < _sprites.size(); i++)
+        {
+            if(_sprites[i]->setup()){
+                hasError = true;
+            }
+        }
+        return hasError;
     }
+
+    static bool updateLayout(){
+        bool shouldRefresh = false;
+        for (int i = 0; i < _sprites.size(); i++)
+        {
+            Sprite* sprite = _sprites[i];
+            if(sprite->updateLayoutPosition()){
+                shouldRefresh = true;
+            }
+        }
+        return shouldRefresh;
+    }
+
     static void add(Sprite *sprite)
     {
         if (sprite->_id != 0 && Sprite::findById(sprite->_id) != NULL)
@@ -324,11 +350,11 @@ public:
         }
     }
     // 削除
-    static void remove(int id)
+    static void remove(int _id)
     {
         for (int i = 0; i < _sprites.size(); i++)
         {
-            if (_sprites[i]->id() == id)
+            if (_sprites[i]->id() == _id)
             {
                 delete _sprites[i];
                 _sprites.erase(_sprites.begin() + i);
@@ -384,20 +410,20 @@ public:
         return list;
     }
     // IDで検索
-    static Sprite *findById(int id)
+    static Sprite *findById(int _id)
     {
         for (int i = 0; i < _sprites.size(); i++)
         {
-            if (_sprites[i]->_id == id)
+            if (_sprites[i]->_id == _id)
             {
                 return _sprites[i];
             }
         }
         return NULL;
     }
-    static Sprite &get(int id)
+    static Sprite &get(int _id)
     {
-        return *findById(id);
+        return *findById(_id);
     }
     static Sprite &get(String tag)
     {
@@ -511,7 +537,11 @@ public:
     {
         _shouldRedraw = true;
     }
-    virtual void onDraw(void)
+    virtual bool setup(void)
+    {
+        return true;
+    }
+    virtual void draw(void)
     {
         // debug
         canvas.clear(TFT_BLUE);
@@ -521,7 +551,7 @@ public:
         canvas.printf("%d,%d\n", _x, _y);
         canvas.printf("%d,%d\n", _width, _height);
     }
-    virtual bool onUpdate(void)
+    virtual bool update(void)
     {
         return false;
     }
@@ -535,18 +565,19 @@ public:
 
     template<typename T>
     bool pushImage(M5Canvas *pCanvas,T *pImage){
+        LOG_E("push image ");
         if(pImage == NULL){
             return false;
         }
-        if(EnableAffine){
-            if(EnableAntiAlias){
-                if(EnableTransparent)
+        if(enableAffine){
+            if(enableAntiAlias){
+                if(enableTransparent)
                     pCanvas->pushImageAffineWithAA(_matrix,_width,_height,pImage,_transparentColor);
                 else
                     pCanvas->pushImageAffineWithAA(_matrix,_width,_height,pImage);
             }
             else{
-                if(EnableTransparent)
+                if(enableTransparent)
                     pCanvas->pushImageAffine(_matrix,_width,_height,pImage,_transparentColor);
                 else
                     pCanvas->pushImageAffine(_matrix,_width,_height,pImage);
@@ -554,7 +585,7 @@ public:
             return true;
         }
 
-        if(EnableTransparent){
+        if(enableTransparent){
             pCanvas->pushImage(_x,_y,_width,_height,pImage,_transparentColor);
         }
         else{
@@ -610,7 +641,7 @@ public:
     }
 
 #pragma endregion
-    bool updatePosition()
+    bool updateLayoutPosition()
     {
         if (layoutType == LayoutType::None)
             return false;

@@ -1,6 +1,8 @@
 #pragma once
 
 #include <M5Unified.h>
+#include <WiFi.h>
+#include <HTTPClient.h>
 
 #define LOG_ENABLE_ERROR
 #define LOG_ENABLE_WARN
@@ -19,4 +21,6 @@
 #include "ImageSprite.hpp"
 #include "BatterySprite.hpp"
 #include "ConsoleSprite.hpp"
+#include "WifiSprite.hpp"
+#include "Renderer.hpp"
 #include "M5UICanvas.hpp"

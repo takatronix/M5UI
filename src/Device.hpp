@@ -58,6 +58,56 @@ public:
         }
         return false;
     }
+    // detectShakeだと、シェイクの判定が短時間で何度も発生してしまうので、wasShakeを使う
+    // 変化が切り替わったらtrueを返す
+    // 一度シェイクを検出したら300msは検出しない
+    static bool wasShake(){
+        static unsigned long prevTime = 0;
+        static bool prevShake = false;
+        if (millis() - prevTime < 300)
+            return false;
+        bool shake = detectShake();
+        if (shake && !prevShake)
+        {
+            prevShake = shake;
+            prevTime = millis();
+            return true;
+        }
+        prevShake = shake;        
+
+        return false;
+    }
+
+
+    static bool detectShake()
+    {
+        static unsigned long prevTime = 0;
+        static float prevX = 0;
+        static float prevY = 0;
+        static float prevZ = 0;
+
+        unsigned long currentTime = millis();
+        if (currentTime - prevTime < 100)
+            return false;
+
+        float ax, ay, az;
+        M5.Imu.getAccelData(&ax, &ay, &az);
+
+        float diffX = abs(ax - prevX);
+        float diffY = abs(ay - prevY);
+        float diffZ = abs(az - prevZ);
+
+        float threshold = 2.0f;
+        if (diffX > threshold || diffY > threshold || diffZ > threshold)
+        {
+            prevX = ax;
+            prevY = ay;
+            prevZ = az;
+            prevTime = currentTime;
+            return true;
+        }
+        return false;
+    }
 
     /// @brief デバイスの向きがPortraitかを取得
     static bool isPortrait()

@@ -6,7 +6,7 @@ class BatterySprite : public Sprite
 public:
     float Level = 0.0;
     StopWatch sw;
-    BatterySprite(M5Canvas *pDisplay, int width = 0, int height = 0, int depth = M5UI_COLOR_DEPTH, bool psram = false) : Sprite(pDisplay, width, height, depth, psram)
+    BatterySprite(M5Canvas *pDisplay, int width = 32, int height = 16, int depth = M5UI_COLOR_DEPTH, bool psram = false) : Sprite(pDisplay, width, height, depth, psram)
     {
         if (create(width, height, 0, 0, depth, psram) == NULL)
         {
@@ -14,11 +14,11 @@ public:
         }
         Sprite::add(this);
 
-        EnableAffine = true;
-        EnableTransparent = true;
+        enableAffine = true;
+        enableTransparent = true;
     }
     
-    virtual bool onUpdate(void)
+    bool update(void) override
     {
         // 1秒ごとにバッテリーレベルを取得
         if (sw.Elapsed() < 1000)
@@ -36,7 +36,7 @@ public:
         return false;
     }
 
-    virtual void onDraw(void)
+    void draw(void) override
     {
         canvas.clear();
         drawBatteryIcon(&canvas, 0, 0, _width, _height, Level);

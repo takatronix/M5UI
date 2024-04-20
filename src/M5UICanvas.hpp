@@ -1,40 +1,46 @@
 #pragma once
 #include <M5Unified.h>
 
+// オフスクリーンバッファを使った描画を行うためのクラス
 class M5UICanvas : public M5Canvas
 {
     int frameCount = 0;
     StopWatch startWatch;
     StopWatch drawWatch;
     int _drawTime = 0;
+    std::vector<Renderer *> _renderers;
 public:
     bool _enableRotation = false;
     M5UICanvas(M5GFX* pDisplay) : M5Canvas(pDisplay) {
     }
+    void start(){
+        drawWatch.reset();
+    }
     void update(){
-        StopWatch drawWatch;
-
+/*
         // デバイスの向きが変わったら画面の向きも変える
         if(Device::wasOrientationChanged() && _enableRotation) {
             LOG_D("Orientation changed");
             int rotation = Device::getRotation();
             if(rotation != -1){
                 M5.Display.setRotation(rotation);
-                this->updateSpritePosition();
+                Sprite::updateLayout();
             }
         }
 
+*/
         Tween::updateAll();
-        bool shouldRefresh = Sprite::updateAll();
+
+        for(auto renderer : _renderers){
+            renderer->draw(this);
+        }
+
+        Sprite::updateAll();
         _drawTime = drawWatch.Elapsed();
         
+        // 画面に描画
         pushSprite(0, 0);
         frameCount++;
-    }
-    void updateSpritePosition(){
-        for(auto sprite : Sprite::_sprites){
-            sprite->updatePosition();
-        }
     }
 
     int getFPS(){
@@ -55,8 +61,25 @@ public:
         Sprite::add(sprite);
         return *this;
     }
-
-
+    M5UICanvas& add(Renderer* renderer){
+        _renderers.push_back(renderer);
+        return *this;
+    }
+    M5UICanvas& remove(Renderer* renderer){
+        for(auto it = _renderers.begin(); it != _renderers.end(); ++it){
+            if(*it == renderer){
+                _renderers.erase(it);
+                break;
+            }
+        }
+        return *this;
+    }
+    M5UICanvas& removeRenderer(int index){
+        if(index >= 0 && index < _renderers.size()){
+            _renderers.erase(_renderers.begin() + index);
+        }
+        return *this;
+    }
     bool setup(bool canRotate = true)
     {
         LOG_I("setupOffscreen");
@@ -88,6 +111,13 @@ public:
 
         this->setTextColor(CYAN);
         this->setTextColor(GREEN);
+
+        // rendererのsetupを呼び出す
+        for(auto renderer : _renderers){
+            renderer->setup();
+        }
+        // spriteのsetupを呼び出す
+        Sprite::setupAll();
 
         LOG_I("M5UICanvas createSprite OK");
         return true;

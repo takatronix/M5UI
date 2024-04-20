@@ -13,7 +13,6 @@ public:
         Sprite::add(this);
     }
 
-
     void setText(const char* text){
         // テキストに変更があれば描画
         if(this->text == text){
@@ -45,8 +44,7 @@ public:
         return canvas.fontHeight(canvas.getFont());
     }
 
-
-    virtual void onDraw(){
+    void draw() override{
         canvas.clear();
         canvas.drawString(text.c_str(),0,0);
     }   
