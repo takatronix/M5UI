@@ -5,6 +5,7 @@ class BatterySprite : public Sprite
 {
 public:
     float Level = 0.0;
+    bool isCharning = false;
     StopWatch sw;
     BatterySprite(M5Canvas *pDisplay, int width = 32, int height = 16, int depth = M5UI_COLOR_DEPTH, bool psram = false) : Sprite(pDisplay, width, height, depth, psram)
     {
@@ -25,26 +26,34 @@ public:
             return false;
 
         sw.reset();
+
+        bool shouldUpdate = false;
+        bool charning = M5.Power.isCharging();
+        if (charning != isCharning)
+        {
+            isCharning = charning;
+            shouldUpdate = true;
+        }
+
         float level = Device::getBatteryLevel() / 100.0F;
         if (level != Level)
         {
             Level = level;
-            return true;
+            shouldUpdate = true;
         }
-
         // falseを返すと描画処理がスキップされる
-        return false;
+        return shouldUpdate;
     }
 
     void draw(void) override
     {
         canvas.clear();
         if(Device::hasBattery())
-           drawBatteryIcon(&canvas, 0, 0, _width, _height, Level);
+           drawBatteryIcon(&canvas, 0, 0, _width, _height, Level,isCharning);
     }
 
     // バッテリーアイコンを描画する関数
-    void drawBatteryIcon(M5Canvas *canvas, int x, int y, int width, int height, float level, uint16_t frameColor = TFT_WHITE)
+    void drawBatteryIcon(M5Canvas *canvas, int x, int y, int width, int height, float level,bool isCharging = false,uint16_t frameColor = TFT_WHITE)
     {
         int tipWidth = width * 0.05;      // 突起部の幅は全体の5%
         int tipHeight = height * 0.5;     // 突起部の高さは全体の50%
@@ -69,9 +78,32 @@ public:
         // バッテリーレベルの描画
         int padding = 2;                                    // 枠の内側のパディング
         int innerWidth = (bodyWidth - 2 * padding) * level; // レベルに応じた内部の幅を計算
+        int innerHeight = height - 2 * padding;             // レベルの高さ
         if (innerWidth > 0)
         {
             canvas->fillRect(x + padding, y + padding, innerWidth, height - 2 * padding, batteryColor);
         }
+
+        if(isCharging)
+        {
+    
+            int boltWidth = width / 8;  // 雷マークの最大幅
+            int boltHeight = height * 0.6; // 雷マークの高さ
+
+            // 雷マークの上部の三角形
+            canvas->fillTriangle(
+                x + width / 2, y +2,
+                x + width / 2, y  + boltHeight+2,
+                x + width / 2 - boltWidth, y + boltHeight,
+                WHITE);
+
+            canvas->fillTriangle(
+                x + width / 2, y +height,
+                x + width / 2, y +height - boltHeight,
+                x + width / 2 + boltWidth, y + height - boltHeight,
+                WHITE);
+        }
     }
+            
+    
 };

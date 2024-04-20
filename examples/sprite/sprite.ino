@@ -18,6 +18,7 @@ TextSprite fps(&screen);
 
 TextSprite title(&screen);
 BatterySprite battery(&screen);
+BatterySprite battery2(&screen,32*4,16*4);
 // WiFiSprite wifi(&screen);
 
 // Digital I/O used
@@ -75,6 +76,8 @@ void setup()
     man10.moveToCenter(); });
 
   startAnimation();
+
+  battery2.moveToCenter();
 }
 
 TweenType animationType = TweenType::EASE_IN_OUT;
