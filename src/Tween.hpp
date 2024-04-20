@@ -25,6 +25,8 @@ public:
 #pragma region Static Functions
     static int _tweenNo;
     static std::vector<Tween *> _tweens;
+    static std::vector<Tween*> _toRemove;
+
     static char* tweenName(TweenType type){
         switch (type)
         {
@@ -73,30 +75,31 @@ public:
         _tweens.erase(std::remove(_tweens.begin(), _tweens.end(), tween), _tweens.end());
         delete tween;
     }
-    static Tween *create(float start, float end, unsigned long duration, TweenType type = TweenType::LINEAR)
+    static Tween& create(float start, float end, unsigned long duration, TweenType type = TweenType::LINEAR)
     {
         Tween *tween = new Tween(start, end, duration, type);
         tween->_id = _tweenNo++;
         addTween(tween);
-        return tween;
+        return *tween;
     }
-
-    static void updateAll()
-    {
-        for (auto it = _tweens.begin(); it != _tweens.end();)
-        {
-            Tween *tween = *it;
-            if (tween->update())
-            {
+    static void updateAll() {
+        // 更新処理
+        for (auto it = _tweens.begin(); it != _tweens.end();) {
+            Tween* tween = *it;
+            if (tween->update()) {
                 ++it;
-            }
-            else
-            {
-                removeTween(tween);
-                LOG_D("Tween Complete %s _id:%d",tween->getName(),tween->_id);
+            } else {
+                _toRemove.push_back(tween);
+                it = _tweens.erase(it);
             }
         }
+        // 削除処理
+        for (Tween* t : _toRemove) {
+            delete t;
+        }
+        _toRemove.clear();
     }
+
 
 #pragma endregion
 

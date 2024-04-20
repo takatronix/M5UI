@@ -39,7 +39,8 @@ public:
     void draw(void) override
     {
         canvas.clear();
-        drawBatteryIcon(&canvas, 0, 0, _width, _height, Level);
+        if(Device::hasBattery())
+           drawBatteryIcon(&canvas, 0, 0, _width, _height, Level);
     }
 
     // バッテリーアイコンを描画する関数

@@ -329,6 +329,14 @@ public:
         }
         return false;
     }
+    static bool hasBattery()
+    {
+        if (isStack() || isPaper() || isStick())
+        {
+            return true;
+        }
+        return false;
+    }
 
     /// @brief 画面の向きを取得
     static int getRotation()

@@ -6,7 +6,6 @@
 #include "StarFieldRenderer.hpp"
 #include "RippleRenderer.hpp"
 
-
 // offscreen buffer -> LCD
 M5UICanvas screen(&M5.Display);
 
@@ -65,17 +64,33 @@ void setup()
   title.hide();
   man10.hide();
   screen.add(new StarFieldRenderer());
-  //screen.add(new RippleRenderer());
+  screen.add(new RippleRenderer());
 
   man10.setOriginCenter();
 
-
   // 画面が回転したときに中央に移動回転する
-  screen.onRotate([](int rotation) {
+  screen.onRotate([](int rotation)
+                  {
     title.moveToCenter();
-    man10.moveToCenter();
-  });
+    man10.moveToCenter(); });
 
+  startAnimation();
+}
+
+TweenType animationType = TweenType::EASE_IN_OUT;
+
+void startAnimation()
+{
+  man10.hidden = false;
+  man10.setOriginCenter();
+  man10.moveToCenter();
+  man10.setAngle(360, 2000, animationType);
+  man10.setScale(5, 2000, animationType, []()
+                 {
+                   man10.setScale(1, 1500, animationType, []()
+                                  { startAnimation(); });
+                   man10.setAngle(0, 1500, animationType);
+                 });
 }
 
 void printDeviceInformation()
@@ -101,7 +116,6 @@ void loop()
   M5.update();
   screen.start();
 
-
   if (Device::wasShake())
   {
     console.toggle();
@@ -126,11 +140,6 @@ void loop()
     if (t.isPressed())
     {
       LOG_D("pressed is x:%d y:%d p:%d r:%d h:%d d:%d f:%d c:%d", x, y, p, r, h, d, f, c);
-
-      //  man10.setX(x);
-      // man10.setY(y);
-
-      // man10.setPivotCenter();
     }
   }
 

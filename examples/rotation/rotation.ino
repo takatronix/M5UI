@@ -18,7 +18,7 @@ void setup() {
 
   // create off-screen buffer
   screen.setup();
-  screen._enableRotation = true;
+  screen.enableRotation = true;
 
   // startup sound
   Sound::playNote(Note::C5,100);

@@ -45,6 +45,8 @@ public:
 
     void update()
     {
+        // タイマーの更新
+        Timer::updateAll();
         // Tweenの更新
         Tween::updateAll();
         // 背景の描画

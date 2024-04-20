@@ -142,7 +142,7 @@ public:
             setAngle(angle);
             return *this;
         }
-        Tween::create(_angle, angle, duration, type)->start()
+        Tween::create(_angle, angle, duration, type).start()
             .onUpdate([this](float progress, float value){
                 setAngle(value); 
              })
@@ -165,9 +165,11 @@ public:
             setScale(scale);
             return *this;
         }
-        Tween::create(_scale, scale, duration, type)->start()
+        Tween::create(_scale, scale, duration, type)
+            .start()
             .onUpdate([this](float progress, float value){
-                setScale(value); 
+                setScale(value);
+                setOriginCenter();
              })
             .onComplete([this, callback](){
                 if(callback != NULL) callback(); 
@@ -599,14 +601,14 @@ public:
             return;
         }
 
-        Tween::create(_x, x, duration, type)->start().onUpdate([this](float progress, float value)
+        Tween::create(_x, x, duration, type).start().onUpdate([this](float progress, float value)
                                                                      { _x = value; 
                                                                      
                                                                              calculateAffine();
 
                                                                      });
 
-        Tween::create(_y, y, duration, type)->start().onUpdate([this](float progress, float value)
+        Tween::create(_y, y, duration, type).start().onUpdate([this](float progress, float value)
                                                                      { _y = value;
                                                                              calculateAffine();
 
