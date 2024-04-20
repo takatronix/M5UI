@@ -12,15 +12,13 @@ class M5UICanvas : public M5Canvas
     std::function<void(int)> _rotationCallBack;
 public:
     // 画面の向きが変わった時に呼び出すコールバックを設定
-    void setRotationCallBack(std::function<void(int)> callback){
+    void onRotate(std::function<void(int)> callback){
         _rotationCallBack = callback;
     }
-
-
-
     bool enableRotation = true;
     M5UICanvas(M5GFX *pDisplay) : M5Canvas(pDisplay)
     {
+        // デフォルトでクリアするレンダラーを追加
         this->add(new ClearRenderer());
     }
     void start()
@@ -52,6 +50,7 @@ public:
         // 背景の描画
         for (auto renderer : _renderers)
         {
+            renderer->update();
             renderer->draw(this);
         }
         // Spriteの更新
@@ -115,10 +114,10 @@ public:
     }
     bool setup()
     {
-        LOG_I("setupOffscreen");
 
         int width = M5.Display.width();
         int height = M5.Display.height();
+        LOG_I("setupOffscreen width:%d height:%d", width, height);
 
         this->setColorDepth(8);
         if (this->createSprite(width, height) == NULL)

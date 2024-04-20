@@ -6,6 +6,7 @@ class Renderer
 public:
     virtual bool setup(){};
     virtual void draw(M5Canvas* canvas){};
+    virtual void update(){};
 };
 
 class ClearRenderer : public Renderer

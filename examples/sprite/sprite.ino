@@ -4,6 +4,8 @@
 #include "image_man10.h"
 
 #include "StarFieldRenderer.hpp"
+#include "RippleRenderer.hpp"
+
 
 // offscreen buffer -> LCD
 M5UICanvas screen(&M5.Display);
@@ -60,14 +62,16 @@ void setup()
   console.hidden = true;
   printDeviceInformation();
 
-
+  title.hide();
+  man10.hide();
   screen.add(new StarFieldRenderer());
+  //screen.add(new RippleRenderer());
 
   man10.setOriginCenter();
 
-  // set callback
-  screen.setRotationCallBack([](int rotation) {
 
+  // 画面が回転したときに中央に移動回転する
+  screen.onRotate([](int rotation) {
     title.moveToCenter();
     man10.moveToCenter();
   });
