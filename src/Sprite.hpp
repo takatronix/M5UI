@@ -260,7 +260,6 @@ public:
     static std::vector<Sprite *> _sprites;
     static bool updateAll()
     {
-        LOG_D("sprite count:%d", _sprites.size());
         bool shouldRefresh = false;
         for (int i = 0; i < _sprites.size(); i++)
         {
@@ -275,16 +274,12 @@ public:
         }
         return shouldRefresh;
     }
-    static bool setupAll()
-    {
-        bool hasError = false;
+    static bool setupAll(){
         for (int i = 0; i < _sprites.size(); i++)
         {
-            if(_sprites[i]->setup()){
-                hasError = true;
-            }
+            _sprites[i]->setup();
         }
-        return hasError;
+        return true;
     }
 
     static bool updateLayout(){
@@ -311,6 +306,7 @@ public:
             sprite->_id = newId();
         _sprites.push_back(sprite);
     }
+
     static void remove(Sprite *sprite)
     {
         for (int i = 0; i < _sprites.size(); i++)
@@ -543,13 +539,6 @@ public:
     }
     virtual void draw(void)
     {
-        // debug
-        canvas.clear(TFT_BLUE);
-        canvas.drawCircle(width() / 2, height() / 2, 10, TFT_RED);
-        canvas.setCursor(0, 0);
-        canvas.printf("%s(%d)\n", tag.c_str(), _id);
-        canvas.printf("%d,%d\n", _x, _y);
-        canvas.printf("%d,%d\n", _width, _height);
     }
     virtual bool update(void)
     {
@@ -565,7 +554,6 @@ public:
 
     template<typename T>
     bool pushImage(M5Canvas *pCanvas,T *pImage){
-        LOG_E("push image ");
         if(pImage == NULL){
             return false;
         }
@@ -629,15 +617,18 @@ public:
     {
         _x = 0;
         _y = 0;
+        calculateAffine();
     }
     void moveToTopRight(void)
     {
         _x = M5.Display.width() - width();
         _y = 0;
+        calculateAffine();
     }
     void moveToCenter(){
         _x = M5.Display.width() / 2;
-        _y = M5.Display.height() / 2;    
+        _y = M5.Display.height() / 2;
+        calculateAffine();
     }
 
 #pragma endregion

@@ -22,4 +22,5 @@ public:
         this->layoutType = LayoutType::ScreenBottomLeft;
         return true;
     }
+    
 };

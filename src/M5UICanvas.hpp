@@ -9,89 +9,116 @@ class M5UICanvas : public M5Canvas
     StopWatch drawWatch;
     int _drawTime = 0;
     std::vector<Renderer *> _renderers;
+    std::function<void(int)> _rotationCallBack;
 public:
-    bool _enableRotation = false;
-    M5UICanvas(M5GFX* pDisplay) : M5Canvas(pDisplay) {
+    // 画面の向きが変わった時に呼び出すコールバックを設定
+    void setRotationCallBack(std::function<void(int)> callback){
+        _rotationCallBack = callback;
     }
-    void start(){
+
+
+
+    bool enableRotation = true;
+    M5UICanvas(M5GFX *pDisplay) : M5Canvas(pDisplay)
+    {
+        this->add(new ClearRenderer());
+    }
+    void start()
+    {
         drawWatch.reset();
-    }
-    void update(){
-/*
+
         // デバイスの向きが変わったら画面の向きも変える
-        if(Device::wasOrientationChanged() && _enableRotation) {
-            LOG_D("Orientation changed");
+        if (Device::wasOrientationChanged() && enableRotation)
+        {
+            LOG_D("Orientation Changed ");
             int rotation = Device::getRotation();
-            if(rotation != -1){
+            if (rotation != -1)
+            {
                 M5.Display.setRotation(rotation);
-                Sprite::updateLayout();
+                setup();
+                if (_rotationCallBack != nullptr)
+                {
+                    _rotationCallBack(rotation);
+                }
             }
         }
+    }
 
-*/
+
+    void update()
+    {
+        // Tweenの更新
         Tween::updateAll();
-
-        for(auto renderer : _renderers){
+        // 背景の描画
+        for (auto renderer : _renderers)
+        {
             renderer->draw(this);
         }
-
+        // Spriteの更新
         Sprite::updateAll();
+ 
+        // 描画時間を計測
         _drawTime = drawWatch.Elapsed();
-        
+
         // 画面に描画
         pushSprite(0, 0);
         frameCount++;
     }
 
-    int getFPS(){
+    int getFPS()
+    {
         auto second = startWatch.Second();
-        if(second == 0){
+        if (second == 0)
+        {
             return 0;
         }
         return frameCount / second;
     }
-    int getDrawTime(){
+    int getDrawTime()
+    {
         return _drawTime;
     }
-    void resetFPS(){
+    void resetFPS()
+    {
         frameCount = 0;
         startWatch.reset();
     }
-    M5UICanvas& add(Sprite* sprite){
+    M5UICanvas &add(Sprite *sprite)
+    {
         Sprite::add(sprite);
         return *this;
     }
-    M5UICanvas& add(Renderer* renderer){
+    M5UICanvas &add(Renderer *renderer)
+    {
         _renderers.push_back(renderer);
         return *this;
     }
-    M5UICanvas& remove(Renderer* renderer){
-        for(auto it = _renderers.begin(); it != _renderers.end(); ++it){
-            if(*it == renderer){
+    M5UICanvas &remove(Renderer *renderer)
+    {
+        for (auto it = _renderers.begin(); it != _renderers.end(); ++it)
+        {
+            if (*it == renderer)
+            {
                 _renderers.erase(it);
                 break;
             }
         }
         return *this;
     }
-    M5UICanvas& removeRenderer(int index){
-        if(index >= 0 && index < _renderers.size()){
+    M5UICanvas &removeRenderer(int index)
+    {
+        if (index >= 0 && index < _renderers.size())
+        {
             _renderers.erase(_renderers.begin() + index);
         }
         return *this;
     }
-    bool setup(bool canRotate = true)
+    bool setup()
     {
         LOG_I("setupOffscreen");
 
-        // 回転に対応する場合は、最大サイズを取得
         int width = M5.Display.width();
         int height = M5.Display.height();
-        if (canRotate)
-        {
-            width = max(width, height);
-            height = width;
-        }
 
         this->setColorDepth(8);
         if (this->createSprite(width, height) == NULL)
@@ -112,12 +139,9 @@ public:
         this->setTextColor(CYAN);
         this->setTextColor(GREEN);
 
-        // rendererのsetupを呼び出す
-        for(auto renderer : _renderers){
-            renderer->setup();
-        }
-        // spriteのsetupを呼び出す
+        // spriteをsetup
         Sprite::setupAll();
+        Sprite::updateLayout();
 
         LOG_I("M5UICanvas createSprite OK");
         return true;
@@ -134,7 +158,7 @@ public:
         this->printf("FreeBlock:%d\n", Device::getLargestFreeBlock());
         this->setTextColor(TFT_GREEN);
     }
-    char* printf(const char *format, ...)
+    char *printf(const char *format, ...)
     {
         char buffer[256];
         va_list args;
@@ -146,4 +170,3 @@ public:
         return buffer;
     }
 };
-

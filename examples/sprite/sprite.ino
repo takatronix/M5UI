@@ -57,12 +57,21 @@ void setup()
   title.setAngle(360, 1000, TweenType::EASE_OUT);
 
   // console.setup();
-  console.hidden = false;
+  console.hidden = true;
   printDeviceInformation();
 
- // WiFi.beginSmartConfig();
 
-//  screen.add(new StarFieldRenderer());
+  screen.add(new StarFieldRenderer());
+
+  man10.setOriginCenter();
+
+  // set callback
+  screen.setRotationCallBack([](int rotation) {
+
+    title.moveToCenter();
+    man10.moveToCenter();
+  });
+
 }
 
 void printDeviceInformation()
@@ -85,24 +94,10 @@ void printDeviceInformation()
 
 void loop()
 {
-
   M5.update();
-
   screen.start();
-  screen.clear();
 
-  // デバイスの向きが変わったら画面の向きも変える
-  if (Device::wasOrientationChanged())
-  {
-    int rotation = Device::getRotation();
-    if (rotation != -1)
-    {
-      M5.Display.setRotation(rotation);
-      Sprite::updateLayout();
-      man10.moveToCenter();
-      man10.setOriginCenter();
-    }
-  }
+
   if (Device::wasShake())
   {
     console.toggle();
@@ -162,10 +157,6 @@ void loop()
     man10.setAngle(man10.angle() + 5);
     man10.setOriginCenter();
     console.println("B Button is pressed");
-  }
-
-  if (M5.BtnB.wasPressed())
-  {
   }
 
   if (M5.BtnC.wasPressed())

@@ -16,6 +16,7 @@ public:
     {
         this->numStars = numStars;
         stars = new Star[numStars];
+        setup();
     }
     ~StarFieldRenderer()
     {
@@ -50,12 +51,26 @@ public:
         return false;
     }
 */
+    bool setup() override
+    {
+        for (int i = 0; i < numStars; ++i)
+        {
+            stars[i].angle = random(0, 360) * PI / 180.0;
+            stars[i].radius = 0;
+            // より大きな速度範囲を持たせる
+            stars[i].speed = random(5, 50) / 10.0; // 0.5から5.0の間でランダムに設定
+            stars[i].color = WHITE;                // 星の色を白に固定
+        }
+        return false;
+    }
     void draw(M5Canvas* canvas) override
     {
         float centerX = canvas->width() / 2;
         float centerY = canvas->height() / 2;
         float maxRadius = sqrt(centerX * centerX + centerY * centerY); // 画面の対角線の長さの半分
         
+        //canvas->setCursor(10,50);
+        //canvas->printf("width:%d\nheight:%d\ncenterX:%f\n centerY:%f\n maxRadius:%f",canvas->width(),canvas->height(),centerX,centerY,maxRadius);
         for (int i = 0; i < numStars; ++i)
         {
             stars[i].radius += stars[i].speed;
@@ -64,7 +79,7 @@ public:
             int x = centerX + stars[i].radius * cos(stars[i].angle);
             int y = centerY + stars[i].radius * sin(stars[i].angle);
 
-            if (x < 0 || x >= M5.Display.width() || y < 0 || y >= M5.Display.height() || stars[i].radius > maxRadius)
+            if (x < 0 || x >= canvas->width() || y < 0 || y >= canvas->height() || stars[i].radius > maxRadius)
             {
                 stars[i].angle = random(0, 360) * PI / 180.0;
                 stars[i].radius = 0;
@@ -73,5 +88,7 @@ public:
             }
             canvas->drawPixel(x, y, fadedColor);
         }
+
+        canvas->fillCircle(centerX, centerY, 10, RED);
     }
 };
