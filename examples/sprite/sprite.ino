@@ -1,5 +1,10 @@
 #include <M5UI.h>
 
+
+const char* ssid = "tp";
+const char* password = "man10.red";
+
+
 // resouce
 #include "image_man10.h"
 
@@ -9,7 +14,7 @@
 // offscreen buffer -> LCD
 M5UICanvas screen(&M5.Display);
 
-ConsoleSprite console(&screen);
+//ConsoleSprite console(&screen);
 
 // sprites -> offscreen buffer
 ImageSprite man10(&screen, image_man10_blue, image_man10_width, image_man10_height, 0, 0, true, 0x03);
@@ -18,8 +23,8 @@ TextSprite fps(&screen);
 
 TextSprite title(&screen);
 BatterySprite battery(&screen);
-BatterySprite battery2(&screen,32*4,16*4);
-// WiFiSprite wifi(&screen);
+
+
 
 // Digital I/O used
 #define I2S_DOUT 25
@@ -34,6 +39,8 @@ void setup()
   cfg.external_speaker.hat_spk2 = true;
 
   M5.begin(cfg);
+  WiFi.beginSmartConfig();
+
   //  audio.setPinout(I2S_BCLK, I2S_LRC, I2S_DOUT);
   //  audio.setVolume(21);  // default 0...21
   // startup sound
@@ -42,6 +49,7 @@ void setup()
 
   // create off-screen buffer
   screen.setup();
+  screen.enableRotation = true;
 
   // set postion
   // battery.setLayout(LayoutType::ScreenTopRight);
@@ -59,7 +67,7 @@ void setup()
   title.setAngle(360, 1000, TweenType::EASE_OUT);
 
   // console.setup();
-  console.hidden = true;
+ // console.hidden = true;
   printDeviceInformation();
 
   title.hide();
@@ -77,7 +85,8 @@ void setup()
 
   startAnimation();
 
-  battery2.moveToCenter();
+
+
 }
 
 TweenType animationType = TweenType::EASE_IN_OUT;
@@ -98,6 +107,7 @@ void startAnimation()
 
 void printDeviceInformation()
 {
+  /*
   console.setTextColor(TFT_YELLOW);
   console.printf("Board:%s\n", Device::getBoardName());
   console.printf("Screen:%dx%d\n", M5.Display.width(), M5.Display.height());
@@ -106,7 +116,7 @@ void printDeviceInformation()
   console.printf("FreeMemory:%d\n", Device::getFreeDmaSize());
   console.printf("FreeBlock:%d\n", Device::getLargestFreeBlock());
   console.setTextColor(TFT_GREEN);
-
+*/
   Serial.printf("Board:%s\n", Device::getBoardName());
   Serial.printf("Screen:%dx%d\n", M5.Display.width(), M5.Display.height());
   Serial.printf("Battery:%d\n", Device::getBatteryLevel());
@@ -121,11 +131,11 @@ void loop()
 
   if (Device::wasShake())
   {
-    console.toggle();
+    //console.toggle();
     Sound::beep();
     screen.resetFPS();
     printDeviceInformation();
-    console.println("Shake!!");
+   // console.println("Shake!!");
   }
 
   if (M5.Touch.isEnabled())
@@ -157,12 +167,12 @@ void loop()
     man10.setOriginCenter();
 
     printDeviceInformation();
-    console.println("A Button is pressed");
+  //  console.println("A Button is pressed");
   }
   // Aボタン長押し
   if (M5.BtnA.wasHold())
   {
-    console.println("A Button is holding");
+  //  console.println("A Button is holding");
     screen.resetFPS();
     //  console.resize(16,16);
   }
@@ -172,7 +182,7 @@ void loop()
     float angle = man10.angle();
     man10.setAngle(man10.angle() + 5);
     man10.setOriginCenter();
-    console.println("B Button is pressed");
+   // console.println("B Button is pressed");
   }
 
   if (M5.BtnC.wasPressed())
@@ -181,7 +191,7 @@ void loop()
     scale *= 1.1;
     man10.setScale(scale);
     man10.setOriginCenter();
-    console.println("C Button is pressed");
+   // console.println("C Button is pressed");
   }
 
   char buf[128];

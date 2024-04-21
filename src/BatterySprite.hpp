@@ -28,11 +28,15 @@ public:
         sw.reset();
 
         bool shouldUpdate = false;
-        bool charning = M5.Power.isCharging();
-        if (charning != isCharning)
-        {
-            isCharning = charning;
-            shouldUpdate = true;
+
+        if(Device::isStack()){
+            bool charning = M5.Power.isCharging();
+            if (charning != isCharning)
+            {
+                isCharning = charning;
+                shouldUpdate = true;
+            }
+
         }
 
         float level = Device::getBatteryLevel() / 100.0F;
@@ -87,7 +91,7 @@ public:
         if(isCharging)
         {
     
-            int boltWidth = width / 8;  // 雷マークの最大幅
+            int boltWidth = width / 7;  // 雷マークの最大幅
             int boltHeight = height * 0.6; // 雷マークの高さ
 
             // 雷マークの上部の三角形

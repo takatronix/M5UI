@@ -22,6 +22,8 @@ public:
         Sprite::add(this);
         enableTransparent = true;
 
+            WiFi.beginSmartConfig();
+            
         // 未接続の場合にはSmartConfig待受
         if ( WiFi.status() != WL_CONNECTED ) {
             WiFi.mode(WIFI_STA);
@@ -30,7 +32,7 @@ public:
         }
     }
     
-    virtual bool update(void)
+    bool update(void) override
     {
         // 1秒ごとに接続チェック
         if (sw.Elapsed() < 1000)
@@ -42,6 +44,7 @@ public:
         bool connected = WiFi.status() == WL_CONNECTED;
         if (connected != isConnected)
         {
+            LOG_I("WiFi status changed. connected: %d", connected);
             WiFi.stopSmartConfig();
             isConnected = connected;
             if(isConnected) {
@@ -57,7 +60,7 @@ public:
         return false;
     }
 
-    virtual void onDraw(void)
+    void draw(void) override
     {
         canvas.clear();
         drawWifiIcon(&canvas, 0, 0, _width, _height, color,isConnected);
