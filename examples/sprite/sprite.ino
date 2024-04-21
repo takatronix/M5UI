@@ -1,10 +1,5 @@
 #include <M5UI.h>
 
-
-const char* ssid = "tp";
-const char* password = "man10.red";
-
-
 // resouce
 #include "image_man10.h"
 
