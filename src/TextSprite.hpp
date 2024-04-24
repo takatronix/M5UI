@@ -33,10 +33,18 @@ public:
         {
             LOG_E("Text Sprite create error");
         }
+        // debug 
+        canvas.drawRect(0,0,width,height,RED);
+
+
+        LOG_I("TextSprite::setText width:%d height:%d",width,height);
+        this->updateOrigin();
+        if(this->layoutType == LayoutType::ScreenCenter){
+            this->moveToCenter();
+        }
     }
     void setText(String text){
         setText(text.c_str());
-        updateOrigin();
     }
     int getTextWidth(){
         return canvas.textWidth(text.c_str());

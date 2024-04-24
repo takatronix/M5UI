@@ -1,17 +1,14 @@
 #include <M5UI.h>
 
-
 // offscreen buffer -> LCD
 M5UICanvas screen(&M5.Display);
 
 // battery level sprite
-TextSprite battery(&screen,60,16);
+BatterySprite battery(&screen);
 // FPS sprite
-TextSprite fps(&screen,60,16);
-// Time to onDraw the screen
-TextSprite drawingTime(&screen,50,16);
+TextSprite fps(&screen);
 // Screen orientation sprite
-TextSprite orientationName(&screen,180,32);
+TextSprite orientationName(&screen);
 
 void setup() {
   M5.begin();
@@ -24,38 +21,28 @@ void setup() {
   Sound::playNote(Note::C5,100);
   Sound::playNote(Note::G5,100);
   
+  int size = 2;
   battery.setLayout(LayoutType::ScreenTopRight);
+
   fps.setLayout(LayoutType::ScreenTopLeft);
-  drawingTime.setLayout(LayoutType::ScreenTopCenter);
-  orientationName.setLayout(LayoutType::ScreenCenter);
-
-  int size = 1;
-  if(Device::isStack()) {
-    size = 2;
-  }
-
-  battery.setTextSize(size);
   fps.setTextSize(size);
-  drawingTime.setTextSize(size);
+
   orientationName.setTextSize(size);
-  orientationName.setTextColor(TFT_RED);
+  orientationName.setTextColor(TFT_YELLOW);
+  orientationName.setLayout(LayoutType::ScreenCenter);
 }
 
 void loop() {
   M5.update();
   
-  screen.clear();
+  // Clear off-screen buffer
+  screen.start();
 
-
-  // Displays remaining battery charge
-  battery.setText(String(Device::getBatteryLevel()) + "%");
   // Displays the number of frames per second
   fps.setText(String(screen.getFPS()) + "FPS");
-  // Displays the time it takes to onDraw the screen
-  drawingTime.setText(String(screen.getDrawingTime()) + "ms");
   // Displays the orientation of the screen
   orientationName.setText(Device::getOrientationName());
-
+ 
   // Draw off-screen on LCD
   screen.update();
 }
