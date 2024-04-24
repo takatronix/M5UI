@@ -69,8 +69,6 @@ void setup()
 
   startAnimation();
 
-
-
 }
 
 TweenType animationType = TweenType::EASE_IN_OUT;

@@ -10,9 +10,11 @@ class M5UICanvas : public M5Canvas
     int _drawingTime = 0;
     std::vector<Renderer *> _renderers;
     std::function<void(int)> _rotationCallBack;
+
 public:
     // 画面の向きが変わった時に呼び出すコールバックを設定
-    void onRotate(std::function<void(int)> callback){
+    void onRotate(std::function<void(int)> callback)
+    {
         _rotationCallBack = callback;
     }
     bool enableRotation = true;
@@ -28,7 +30,6 @@ public:
         // デバイスの向きが変わったら画面の向きも変える
         if (Device::wasOrientationChanged() && enableRotation)
         {
-            LOG_D("Orientation Changed ");
             int rotation = Device::getRotation();
             if (rotation != -1)
             {
@@ -39,9 +40,9 @@ public:
                     _rotationCallBack(rotation);
                 }
             }
+            Sprite::updateLayout();
         }
     }
-
 
     void update()
     {
@@ -57,7 +58,7 @@ public:
         }
         // Spriteの更新
         Sprite::updateAll();
- 
+
         // 描画時間を計測
         _drawingTime = drawWatch.Elapsed();
 

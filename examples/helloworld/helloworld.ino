@@ -11,15 +11,13 @@ M5UICanvas screen(&M5.Display);
 BatterySprite battery(&screen);
 // FPS sprite
 TextSprite fps(&screen);
-// 描画時間
-TextSprite drawingTime(&screen);
 // Hello World sprite
 TextSprite helloWorld(&screen);
 
 void setup() {
   M5.begin();
 
-  // create off-screen buffer
+  // create off-screen buffer and set up
   screen.setup();
   // 自動回転を無効にする場合はfalseに設定
   //screen.enableRotation = false;
@@ -32,7 +30,6 @@ void setup() {
   battery.setLayout(LayoutType::ScreenTopRight);
   fps.setTextSize(2);
   fps.setLayout(LayoutType::ScreenTopLeft);
-  drawingTime.setLayout(LayoutType::ScreenTopCenter);
 
   helloWorld.setTextSize(2);
   helloWorld.setLayout(LayoutType::ScreenCenter);
@@ -47,8 +44,6 @@ void loop() {
 
   // Displays the number of frames per second
   fps.setText(String(screen.getFPS()) + "FPS");
-  // Displays the drawing time
-  drawingTime.setText(String(screen.getDrawingTime()) + "ms");
 
   // Draw off-screen on LCD
   screen.update();

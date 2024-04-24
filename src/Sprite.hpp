@@ -304,11 +304,11 @@ public:
         for (int i = 0; i < _sprites.size(); i++)
         {
             Sprite *sprite = _sprites[i];
+            sprite->updateOrigin();
             if (sprite->updateLayoutPosition())
             {
                 shouldRefresh = true;
             }
-            sprite->updateOrigin();
         }
         return shouldRefresh;
     }
@@ -667,7 +667,6 @@ public:
             return false;
         auto pos = getScreenPosition(layoutType);
         setPosition(pos.first, pos.second);
-        updateOrigin();
         return true;
     }
     bool setLayout(LayoutType layout)
@@ -722,9 +721,9 @@ public:
         case LayoutType::ScreenBottomRight:
             return std::make_pair(M5.Display.width() - width(), M5.Display.height() - height());
         case LayoutType::ScreenBottomCenter:
-            return std::make_pair((M5.Display.width() - width()) / 2, M5.Display.height() - height());
+            return std::make_pair(M5.Display.width() / 2, M5.Display.height() - height());
         case LayoutType::ScreenCenter:
-            return std::make_pair((M5.Display.width() - width()) / 2, (M5.Display.height() - height()) / 2);
+            return std::make_pair(M5.Display.width() / 2, M5.Display.height()  / 2);
         }
     }
 
