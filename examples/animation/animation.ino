@@ -65,8 +65,7 @@ void loop() {
   if(M5.BtnA.wasPressed()) {
     Sound::beep();
     tween = getNextTweenType();
-
-    start
+    startAnimation();
   }
 
 
