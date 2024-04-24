@@ -711,7 +711,7 @@ public:
         case LayoutType::ScreenTopRight:
             return std::make_pair(M5.Display.width() - width(), 0);
         case LayoutType::ScreenTopCenter:
-            return std::make_pair((M5.Display.width() - width()) / 2, 0);
+            return std::make_pair(M5.Display.width()  / 2, height() / 2);
         case LayoutType::ScreenMiddleLeft:
             return std::make_pair(0, (M5.Display.height() - height()) / 2);
         case LayoutType::ScreenMiddleRight:
@@ -721,7 +721,7 @@ public:
         case LayoutType::ScreenBottomRight:
             return std::make_pair(M5.Display.width() - width(), M5.Display.height() - height());
         case LayoutType::ScreenBottomCenter:
-            return std::make_pair(M5.Display.width() / 2, M5.Display.height() - height());
+            return std::make_pair(M5.Display.width() / 2, M5.Display.height() - height() /2);
         case LayoutType::ScreenCenter:
             return std::make_pair(M5.Display.width() / 2, M5.Display.height()  / 2);
         }
