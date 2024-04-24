@@ -7,7 +7,7 @@ class M5UICanvas : public M5Canvas
     int frameCount = 0;
     StopWatch startWatch;
     StopWatch drawWatch;
-    int _drawTime = 0;
+    int _drawingTime = 0;
     std::vector<Renderer *> _renderers;
     std::function<void(int)> _rotationCallBack;
 public:
@@ -59,7 +59,7 @@ public:
         Sprite::updateAll();
  
         // 描画時間を計測
-        _drawTime = drawWatch.Elapsed();
+        _drawingTime = drawWatch.Elapsed();
 
         // 画面に描画
         pushSprite(0, 0);
@@ -75,9 +75,9 @@ public:
         }
         return frameCount / second;
     }
-    int getDrawTime()
+    int getDrawingTime()
     {
-        return _drawTime;
+        return _drawingTime;
     }
     void resetFPS()
     {

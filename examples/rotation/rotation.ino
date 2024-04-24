@@ -9,7 +9,7 @@ TextSprite battery(&screen,60,16);
 // FPS sprite
 TextSprite fps(&screen,60,16);
 // Time to onDraw the screen
-TextSprite drawTime(&screen,50,16);
+TextSprite drawingTime(&screen,50,16);
 // Screen orientation sprite
 TextSprite orientationName(&screen,180,32);
 
@@ -26,7 +26,7 @@ void setup() {
   
   battery.setLayout(LayoutType::ScreenTopRight);
   fps.setLayout(LayoutType::ScreenTopLeft);
-  drawTime.setLayout(LayoutType::ScreenTopCenter);
+  drawingTime.setLayout(LayoutType::ScreenTopCenter);
   orientationName.setLayout(LayoutType::ScreenCenter);
 
   int size = 1;
@@ -36,7 +36,7 @@ void setup() {
 
   battery.setTextSize(size);
   fps.setTextSize(size);
-  drawTime.setTextSize(size);
+  drawingTime.setTextSize(size);
   orientationName.setTextSize(size);
   orientationName.setTextColor(TFT_RED);
 }
@@ -52,7 +52,7 @@ void loop() {
   // Displays the number of frames per second
   fps.setText(String(screen.getFPS()) + "FPS");
   // Displays the time it takes to onDraw the screen
-  drawTime.setText(String(screen.getDrawTime()) + "ms");
+  drawingTime.setText(String(screen.getDrawingTime()) + "ms");
   // Displays the orientation of the screen
   orientationName.setText(Device::getOrientationName());
 

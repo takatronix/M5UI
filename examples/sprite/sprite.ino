@@ -13,18 +13,10 @@ M5UICanvas screen(&M5.Display);
 
 // sprites -> offscreen buffer
 ImageSprite man10(&screen, image_man10_blue, image_man10_width, image_man10_height, 0, 0, true, 0x03);
-
 TextSprite fps(&screen);
-
 TextSprite title(&screen);
 BatterySprite battery(&screen);
-
-
-
-// Digital I/O used
-#define I2S_DOUT 25
-#define I2S_BCLK 26
-#define I2S_LRC 0
+\
 
 void setup()
 {
@@ -34,10 +26,8 @@ void setup()
   cfg.external_speaker.hat_spk2 = true;
 
   M5.begin(cfg);
-  WiFi.beginSmartConfig();
+  //WiFi.beginSmartConfig();
 
-  //  audio.setPinout(I2S_BCLK, I2S_LRC, I2S_DOUT);
-  //  audio.setVolume(21);  // default 0...21
   // startup sound
   Sound::beep(2000, 100);
   Sound::beep(1000, 100);
@@ -47,18 +37,16 @@ void setup()
   screen.enableRotation = true;
 
   // set postion
-  // battery.setLayout(LayoutType::ScreenTopRight);
   battery.setLayout(LayoutType::ScreenTopRight);
   fps.setLayout(LayoutType::ScreenTopLeft);
   title.setLayout(LayoutType::ScreenCenter);
-
   fps.setTextSize(2);
   man10.enableTransparent = true;
 
   title.setTextSize(2);
   title.setText("Hello M5UI!");
   title.enableTransparent = true;
-  title.setOriginCenter();
+  title.setOriginToCenter();
   title.setAngle(360, 1000, TweenType::EASE_OUT);
 
   // console.setup();
@@ -70,13 +58,14 @@ void setup()
   screen.add(new StarFieldRenderer());
   screen.add(new RippleRenderer());
 
-  man10.setOriginCenter();
+  // 回転する原点を中心点に設定
+  man10.setOriginToCenter();
 
   // 画面が回転したときに中央に移動回転する
-  screen.onRotate([](int rotation)
-                  {
+  screen.onRotate([](int rotation){
     title.moveToCenter();
-    man10.moveToCenter(); });
+    man10.moveToCenter(); 
+  });
 
   startAnimation();
 
@@ -89,7 +78,7 @@ TweenType animationType = TweenType::EASE_IN_OUT;
 void startAnimation()
 {
   man10.hidden = false;
-  man10.setOriginCenter();
+  man10.setOriginToCenter();
   man10.moveToCenter();
   man10.setAngle(360, 2000, animationType);
   man10.setScale(5, 2000, animationType, []()
@@ -159,7 +148,7 @@ void loop()
     man10.setScale(1);
 
     man10.moveToCenter();
-    man10.setOriginCenter();
+    man10.setOriginToCenter();
 
     printDeviceInformation();
   //  console.println("A Button is pressed");
@@ -176,7 +165,7 @@ void loop()
   {
     float angle = man10.angle();
     man10.setAngle(man10.angle() + 5);
-    man10.setOriginCenter();
+    man10.setOriginToCenter();
    // console.println("B Button is pressed");
   }
 
@@ -185,14 +174,14 @@ void loop()
     float scale = man10.scale();
     scale *= 1.1;
     man10.setScale(scale);
-    man10.setOriginCenter();
+    man10.setOriginToCenter();
    // console.println("C Button is pressed");
   }
 
   char buf[128];
   sprintf(buf, "%dFPS %dms %dKB",
           screen.getFPS(),
-          screen.getDrawTime(),
+          screen.getDrawingTime(),
           Device::getLargestFreeBlock() / 1024);
   fps.setText(buf);
 

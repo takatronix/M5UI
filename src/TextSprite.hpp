@@ -36,6 +36,7 @@ public:
     }
     void setText(String text){
         setText(text.c_str());
+        updateOrigin();
     }
     int getTextWidth(){
         return canvas.textWidth(text.c_str());

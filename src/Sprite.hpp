@@ -169,7 +169,7 @@ public:
             .start()
             .onUpdate([this](float progress, float value){
                 setScale(value);
-                setOriginCenter();
+                updateOrigin();
              })
             .onComplete([this, callback](){
                 if(callback != NULL) callback(); 
@@ -185,12 +185,20 @@ public:
         calculateAffine();
         return *this;
     }
-    Sprite& setOriginCenter()
+    Sprite& setOriginToCenter()
     {
         _cx = width() / 2;
         _cy = height() / 2;
         calculateAffine();
         return *this;
+    }
+    void updateOrigin(){
+        if( this->layoutType == LayoutType::ScreenCenter ||
+            this->layoutType == LayoutType::ScreenTopCenter ||
+            this->layoutType == LayoutType::ScreenBottomCenter ){
+            setOriginToCenter();
+            moveToCenter();
+        }
     }
 
     float centerx()
@@ -437,7 +445,6 @@ public:
 
     Sprite(M5Canvas *parent, int width=0, int height=0, int x = 0, int y = 0, int depth = M5UI_COLOR_DEPTH, bool psram = false) : parentCanvas(parent)
     {
-
         parentCanvas = parent;
         if (create(width, height, x, y, depth, psram) == NULL)
         {
@@ -464,6 +471,10 @@ public:
     void deinit()
     {
         canvas.deleteSprite();
+    }
+    operator M5Canvas &()
+    {
+        return canvas;
     }
     // 中心点を設定する
     void setPivotCenter(void)
@@ -640,6 +651,7 @@ public:
             return false;
         auto pos = getScreenPosition(layoutType);
         setPosition(pos.first,pos.second);
+        updateOrigin();
         return true;
     }
     bool setLayout(LayoutType pos)
