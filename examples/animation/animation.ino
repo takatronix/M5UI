@@ -6,15 +6,15 @@ M5UICanvas screen(&M5.Display);
 
 
 // 画面に表示するスプライト(宣言の順序で下から描画されます)
+// Ball sprite
+Sprite ball(&screen,64,64);
 
 // battery level sprite
-TextSprite battery(&screen,60,16);
+BatterySprite battery(&screen,32,16);
+
 // FPS sprite
 TextSprite fps(&screen,60,16);
-//　Drawing time
-TextSprite drawingTime(&screen,50,16);
-// Ball sprite
-Sprite ball(&screen,64,64,0,0,0,true);
+
 // Animation name
 TextSprite animationName(&screen,180,16);
 
@@ -32,27 +32,20 @@ void setup() {
   Sound::playNote(Note::A3,100);
   
   battery.setLayout(LayoutType::ScreenTopRight);
-  fps.setLayout(LayoutType::ScreenTopLeft);
-  drawingTime.setLayout(LayoutType::ScreenTopCenter);
+
   animationName.setLayout(LayoutType::ScreenCenter);
-  ball.canvas.fillCircle(32,32,30,RED);
+  animationName.setTextSize(2);
+  animationName.enableTransparent = true;
 
-  int size = 1;
-  if(Device::isStack()) {
-    size = 2;
-  }
+  fps.setTextSize(2);
+  fps.setLayout(LayoutType::ScreenTopLeft);
+  fps.enableTransparent = true;
 
-  battery.setTextSize(size);
-  fps.setTextSize(size);
-  drawingTime.setTextSize(size);
-  animationName.setTextSize(size);
-
-  tween = getNextTweenType();
-
-  // 一番したに移動
   ball.setLayout(LayoutType::ScreenBottomCenter);
+  ball.canvas.fillCircle(32,32,30,RED);
   ball.moveTo(ball.x(),0,1000,tween);
 
+  tween = getNextTweenType();
 }
 
 void loop() {
@@ -68,13 +61,8 @@ void loop() {
     startAnimation();
   }
 
-
-  // Displays remaining battery charge
-  battery.setText(String(Device::getBatteryLevel()) + "%");
   // Displays the number of frames per second
   fps.setText(String(screen.getFPS()) + "FPS");
-  // Displays the time it takes to onDraw the screen
-  drawingTime.setText(String(screen.getDrawingTime()) + "ms");
 
   // Draw off-screen on LCD
   screen.update();
@@ -85,7 +73,8 @@ void startAnimation()
     
   animationName.setText(Tween::tweenName(tween));
 
-  ball.setLayout(LayoutType::ScreenBottomCenter);
+  // ボールを画面下から中央に移動
+  ball.setPosition(LayoutType::ScreenBottomCenter);
   ball.moveTo(ball.x(),0,1000,tween);
 
 }

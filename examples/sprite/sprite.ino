@@ -2,7 +2,7 @@
 
 // resouce
 #include "image_man10.h"
-
+// renderer
 #include "StarFieldRenderer.hpp"
 #include "RippleRenderer.hpp"
 
@@ -16,7 +16,7 @@ ImageSprite man10(&screen, image_man10_blue, image_man10_width, image_man10_heig
 TextSprite fps(&screen);
 TextSprite title(&screen);
 BatterySprite battery(&screen);
-\
+
 
 void setup()
 {

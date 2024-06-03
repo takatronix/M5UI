@@ -24,3 +24,4 @@
 #include "WifiSprite.hpp"
 #include "Renderer.hpp"
 #include "M5UICanvas.hpp"
+#include "unit/Unit.hpp"

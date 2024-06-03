@@ -7,7 +7,7 @@ public:
     float Level = 0.0;
     bool isCharning = false;
     StopWatch sw;
-    BatterySprite(M5Canvas *pDisplay, int width = 32, int height = 16, int depth = M5UI_COLOR_DEPTH, bool psram = false) : Sprite(pDisplay, width, height, depth, psram)
+    BatterySprite(M5Canvas *pDisplay, int width = 32, int height = 16,LayoutType layout = LayoutType::ScreenTopRight, int depth = M5UI_COLOR_DEPTH, bool psram = false) : Sprite(pDisplay, width, height, depth, psram)
     {
         if (create(width, height, 0, 0, depth, psram) == NULL)
         {
@@ -17,6 +17,7 @@ public:
 
         enableAffine = true;
         enableTransparent = true;
+        setLayout(layout);
     }
     
     bool update(void) override

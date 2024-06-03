@@ -32,8 +32,9 @@ public:
         {
             int rotation = Device::getRotation();
             if (rotation != -1)
-            {
+            {                
                 M5.Display.setRotation(rotation);
+
                 setup();
                 if (_rotationCallBack != nullptr)
                 {
@@ -115,12 +116,24 @@ public:
         }
         return *this;
     }
+    M5UICanvas &removeAllRenderers()
+    {
+        _renderers.clear();
+        return *this;
+    }
+
     bool setup()
     {
-
         int width = M5.Display.width();
         int height = M5.Display.height();
         LOG_I("setupOffscreen width:%d height:%d", width, height);
+
+        if (this->width() == width && this->height() == height)
+        {
+            LOG_I("Offscreen is already created(width:%d height:%d)", width, height);
+            return true;
+        }
+
 
         this->setColorDepth(8);
         if (this->createSprite(width, height) == NULL)

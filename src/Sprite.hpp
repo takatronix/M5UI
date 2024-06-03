@@ -614,50 +614,51 @@ public:
 #pragma endregion
 
 #pragma region Move
-    void moveTo(int x, int y, unsigned long duration = 100, TweenType type = TweenType::LINEAR)
+    Sprite& moveTo(int x, int y, unsigned long duration = 100, TweenType type = TweenType::LINEAR)
     {
         if (_x == x && _y == y)
-            return;
+            return *this;
 
         calculateAffine();
         if (duration == 0)
         {
             _x = x;
             _y = y;
-            return;
+            return *this;
         }
 
         Tween::create(_x, x, duration, type).start().onUpdate([this](float progress, float value)
                                                               {
                                                                   _x = value;
-
-                                                                  calculateAffine();
-                                                              });
+                                                                  calculateAffine(); });
 
         Tween::create(_y, y, duration, type).start().onUpdate([this](float progress, float value)
                                                               {
                                                                   _y = value;
-                                                                  calculateAffine();
-                                                              });
+                                                                  calculateAffine(); });
+        return *this;                                                                  
     }
 
-    void moveToTopLeft(void)
+    Sprite& moveToTopLeft(void)
     {
         _x = 0;
         _y = 0;
         calculateAffine();
+        return *this;
     }
-    void moveToTopRight(void)
+    Sprite& moveToTopRight(void)
     {
         _x = M5.Display.width() - width();
         _y = 0;
         calculateAffine();
+        return *this;
     }
-    void moveToCenter()
+    Sprite& moveToCenter()
     {
         _x = M5.Display.width() / 2;
         _y = M5.Display.height() / 2;
         calculateAffine();
+        return *this;
     }
 
 #pragma endregion
@@ -669,19 +670,24 @@ public:
         setPosition(pos.first, pos.second);
         return true;
     }
-    bool setLayout(LayoutType layout)
+    Sprite& setLayout(LayoutType layout)
     {
         this->layoutType = layout;
+        setPosition(layout);
+        return *this;
+    }
+    Sprite& setPosition(LayoutType layout)
+    {
         auto result = getScreenPosition(layout);
         setPosition(result.first, result.second);
-        return true;
+        return *this;
     }
-    bool setPosition(int x, int y)
+    Sprite& setPosition(int x, int y)
     {
         _x = x;
         _y = y;
         calculateAffine();
-        return true;
+        return *this;
     }
 
     float angle()
@@ -711,7 +717,7 @@ public:
         case LayoutType::ScreenTopRight:
             return std::make_pair(M5.Display.width() - width(), 0);
         case LayoutType::ScreenTopCenter:
-            return std::make_pair(M5.Display.width()  / 2, height() / 2);
+            return std::make_pair(M5.Display.width() / 2, height() / 2);
         case LayoutType::ScreenMiddleLeft:
             return std::make_pair(0, (M5.Display.height() - height()) / 2);
         case LayoutType::ScreenMiddleRight:
@@ -721,9 +727,9 @@ public:
         case LayoutType::ScreenBottomRight:
             return std::make_pair(M5.Display.width() - width(), M5.Display.height() - height());
         case LayoutType::ScreenBottomCenter:
-            return std::make_pair(M5.Display.width() / 2, M5.Display.height() - height() /2);
+            return std::make_pair(M5.Display.width() / 2, M5.Display.height() - height() / 2);
         case LayoutType::ScreenCenter:
-            return std::make_pair(M5.Display.width() / 2, M5.Display.height()  / 2);
+            return std::make_pair(M5.Display.width() / 2, M5.Display.height() / 2);
         }
     }
 
