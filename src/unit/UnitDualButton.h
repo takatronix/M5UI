@@ -3,25 +3,28 @@
 class UnitDualButton
 {
 public:
-    UnitDualButton()
+    int _red;
+    int _blue;
+    UnitDualButton(int red =22,int blue = 19)
     {
-        begin();
+        _red = red;
+        _blue = blue;
     }
     void begin()
     {
-        pinMode(26, INPUT_PULLUP); // Red Button Pin setting
-        pinMode(36, INPUT_PULLUP); // Blue Button Pin setting
+        pinMode(_red, INPUT); // Red Button Pin setting
+        pinMode(_blue, INPUT); // Blue Button Pin setting
     }
 
     bool isRedButtonPressed()
     {
-        if (digitalRead(26) == 0)
+        if (digitalRead(_red) == 0)
             return true;
         return false;
     }
     bool isBlueButtonPressed()
     {
-        if (digitalRead(36) == 0)
+        if (digitalRead(_blue) == 0)
             return true;
         return false;
     }
