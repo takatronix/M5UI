@@ -89,7 +89,7 @@ public:
     // speed -127 - 127を、500 - 2500のパルス幅に変換
     uint8_t setServoSpeed(uint8_t ch, int speed)
     {
-        LOG_D("[%d] setServoSpeed: speed=%d", ch, speed);
+        //LOG_D("[%d] setServoSpeed: speed=%d", ch, speed);
         if (speed < MOTOR_SPEED_MIN)
             speed = MOTOR_SPEED_MIN;
         if (speed > MOTOR_SPEED_MAX)
@@ -101,7 +101,7 @@ public:
 
     uint8_t setServoAngle(uint8_t ch, uint8_t angle)
     {
-        LOG_D("setServoAngle: ch=%d, angle=%d", ch, angle);
+        //LOG_D("setServoAngle: ch=%d, angle=%d", ch, angle);
         uint8_t reg = ch;
         writeByte(reg, angle);
         return 0;
