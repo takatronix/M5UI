@@ -5,11 +5,16 @@ class TextSprite : public Sprite{
 public:
     String text;
 
-    TextSprite(M5Canvas* pDisplay,int width=0,int height=0,int x=0,int y=0,int depth = M5UI_COLOR_DEPTH,bool psram = false) : Sprite(pDisplay,width,height,x,y,depth,psram) {
+    TextSprite(M5Canvas* pDisplay,const char* text="",LayoutType layout = LayoutType::ScreenCenter, int width=0,int height=0,int x=0,int y=0,int depth = M5UI_COLOR_DEPTH,bool psram = false) : Sprite(pDisplay,width,height,x,y,depth,psram) {
+
+        setText(text);
+        setLayout(layout);
+/*
         if (create(width, height, x, y, depth, psram) == NULL)
         {
             LOG_E("Text Sprite create error");
         }
+        */
         Sprite::add(this);
     }
 

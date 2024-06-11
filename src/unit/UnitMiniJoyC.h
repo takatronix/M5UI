@@ -22,19 +22,24 @@ class UnitMiniJoyC : public I2CWire
 {
     uint8_t buttonStatus;
     float ax, ay;
-    float x, y;
     bool buttonPressed;
     bool _wasPressed; // ボタンが押されたか
 
 
-    float ad_min_x = 99999;
-    float ad_min_y = 99999;
-    float ad_max_x = 0;
-    float ad_max_y = 0;
 public:
+    float ad_min_x = 259;
+    float ad_max_x = 3900;
+
+    float ad_min_y = 292;
+    float ad_max_y = 3738;
+
+    // 上下反転させる場合はtrue
+    bool invertY = false;
+
+    float x, y;
     bool begin(uint8_t addr = UNIT_JOYC_ADDR)
     {
-        return I2CWire::begin(addr);
+        return I2CWire::begin(Wire,addr,0,26);
     }
 
     bool wasPressed()
@@ -46,6 +51,9 @@ public:
 
     void update()
     {
+        if(!isConnected()){
+            return;
+        }
         uint8_t stat = getButtonStatus();
         buttonPressed = !stat;
         if (stat != buttonStatus)
@@ -75,7 +83,7 @@ public:
         if(ay > ad_max_y){
             ad_max_y = ay;
         }
-      //  LOG_D("ad_min_x:%f, ad_max_x:%f, ad_min_y:%f, ad_max_y:%f", ad_min_x, ad_max_x, ad_min_y, ad_max_y);
+        LOG_D("ad_min_x:%f, ad_max_x:%f, ad_min_y:%f, ad_max_y:%f", ad_min_x, ad_max_x, ad_min_y, ad_max_y);
 
         // 最大値と最小値から中央値を算出
         float mid_x = (ad_max_x + ad_min_x) / 2;
@@ -84,11 +92,9 @@ public:
         // 仮想的な最大=1.0、最小=-1.0の範囲に変換
         x = (ax - mid_x) / (ad_max_x - mid_x);
         y = (ay - mid_y) / (ad_max_y - mid_y);
-
-        //float fx =abs(x);
-        //float fy =abs(y);
-        //setLEDColor(fx * 100,fy * 100,0);
-       // LOG_D("x:%f, y:%f", x, y);
+        if(invertY){
+            y = -y;
+        }
     }
 
     uint16_t getADCValue(uint8_t index)

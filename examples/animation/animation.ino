@@ -13,10 +13,10 @@ Sprite ball(&screen,64,64);
 BatterySprite battery(&screen,32,16);
 
 // FPS sprite
-TextSprite fps(&screen,60,16);
+TextSprite fps(&screen);
 
 // Animation name
-TextSprite animationName(&screen,180,16);
+TextSprite animationName(&screen);
 
 // アニメーションの種類
 auto tween = TweenType::LINEAR;
@@ -75,7 +75,8 @@ void startAnimation()
 
   // ボールを画面下から中央に移動
   ball.setPosition(LayoutType::ScreenBottomCenter);
-  ball.moveTo(ball.x(),0,1000,tween);
+  auto pos = ball.getScreenPosition(LayoutType::ScreenTopCenter);
+  ball.moveTo(pos.first,pos.second,1000,tween);
 
 }
 

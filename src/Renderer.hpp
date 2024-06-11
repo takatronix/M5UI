@@ -45,7 +45,6 @@ public:
     }
 };
 
-
 class TextRenderer : public Renderer
 {
     char* _text;

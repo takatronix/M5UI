@@ -21,14 +21,15 @@ public:
             LOG_D("I2C connected: addr=%xh", addr);
             _isConnected = true;
             return true;
-        } 
+        }
+        LOG_E("I2C not connected: addr=%xh", addr);
         _isConnected = false;
         return false; 
     }
 
     bool begin(uint16_t addr)
     {
-        LOG_D("I2C begin: addr=%xh, frequency=%d", addr);
+        LOG_D("I2C begin: addr=%xh", addr);
         _wire = &Wire;
         _addr = addr;
         _wire->begin();

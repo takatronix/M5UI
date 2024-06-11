@@ -38,7 +38,7 @@ public:
     void update()
     {
         if(!isConnected()){
-            LOG_E("Angle8 is not connected");
+            //LOG_E("Angle8 is not connected");
             return; 
         };
 

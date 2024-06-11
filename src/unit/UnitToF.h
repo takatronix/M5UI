@@ -28,7 +28,7 @@ public:
     {
         if (!isConnected())
         {
-            LOG_E("UnitToF is not connected");
+            //LOG_E("UnitToF is not connected");
             return;
         };
 
