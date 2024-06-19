@@ -1,7 +1,10 @@
 #include <M5UI.h>
 #include "RaderSprite.hpp"
 #include "LevelSprite.hpp"
-#include "BTSerial.h"
+
+#include "BluetoothSprite.h"
+#include "UnitAngle8Task.h"
+#include "UnitMiniJoyCTask.h"
 
 // Bluetooth device name
 #define BT_DEVICE_NAME "MiniJoyC_Remote"
@@ -12,53 +15,54 @@ BTSerial btSerial(BT_DEVICE_NAME, true, BT_TARGET_DEVICE_NAME);
 
 // offscreen buffer
 M5UICanvas screen(&M5.Display);
+
+RaderSprite rader(&screen,128,128,LayoutType::ScreenBottomCenter);
+TextSprite message(&screen,"",LayoutType::ScreenCenter);
+
 // battery level sprite
-TextSprite fps(&screen);
+TextSprite fps(&screen,"",LayoutType::ScreenTopLeft);
+TextSprite mem(&screen,"",LayoutType::ScreenMiddleLeft);
 BatterySprite battery(&screen);
 
-RaderSprite rader(&screen,120,120,LayoutType::ScreenBottomCenter);
-LevelSprite level(&screen, 128, 8, LayoutType::ScreenTopLeft);
-TextSprite message(&screen,"Hello",LayoutType::ScreenCenter);
+//BluetoothSprite bt(&screen, 32, 32, LayoutType::ScreenBottomRight);
 
+#define LV_WIDTH 128
+#define LV_HEIGHT 8
+#define LV_X 0
+#define LV_Y 24
 
-UnitMiniJoyC unitJoyC;
-UnitAngle8  unitAngle;
+LevelSprite* lv[8];
+UnitAngle8Task* unitAngleTask;
+UnitMiniJoyCTask* unitMiniJoyCTask;
 
 void setup()
 {
     auto cfg = M5.config();
     M5.begin(cfg);
 
+
+    Sound::beep();
     // オフスクリーンバッファの初期化
-   // screen.enableRotation = false;
 
     screen.setup();
     screen.removeAllRenderers();
-    screen.setCursor(0, 0);
-    screen.setTextSize(1);
-    screen.setTextColor(GREEN);
     screen.setRotation(0);
+    screen.enableRotation = false;
 
     message.setTextSize(2);
-    message.setText("MiniJoyC Remote");
     screen.update();
-  //  unitAngle.begin();
-    if(!unitJoyC.begin()){
-        screen.printf("JoyC: Disconnected\n");
-    } 
-    LOG_I("BT devce name:%s", BT_DEVICE_NAME);
-    LOG_I("BT target device name:%s", BT_TARGET_DEVICE_NAME);
 
-    LOG_I("BT devce name:%s", btSerial.getDeviceName());
+    // lv配列を初期化
+    for(int i = 0; i < 8; i++){
+        lv[i] = new LevelSprite(&screen, LV_WIDTH, LV_HEIGHT, LV_X, LV_Y + i * 10);
+    }
 
-    message.setText("BT Serial");
-    Sprite::updateLayout();
-    screen.update();
-    message.setText("test");
-    screen.update();
-    message.setText("test2");
-
-  //  btSerial.begin();
+    fps.setTextSize(2);
+    mem.setTextSize(2);
+        
+    unitAngleTask = new UnitAngle8Task();
+    unitMiniJoyCTask = new UnitMiniJoyCTask();
+    LOG_D("UnitAngle8Task created");
 }
 
 void loop()
@@ -66,39 +70,31 @@ void loop()
     M5.update();
     screen.start();
 
-    unitJoyC.update();
-//    unitAngle.update();
 
-    // 画面表示
-    screen.clear();
-    screen.setCursor(0, 0);
-    screen.setTextSize(1);
-
-    if(unitJoyC.isConnected()){
-  //      screen.printf("%d, %d\n", unitJoyC.x, unitJoyC.y);
-    }else{
-        screen.printf("JoyC: Disconnected\n");
+    //　ノブの値を表示
+    for(int i = 0; i < 8; i++){
+        lv[i]->setLevel(unitAngleTask->unit.level[i]);
     }
 
-    //screen.printf("minx:%.2f, maxx:%.2f\n", unitJoyC.ad_min_x, unitJoyC.ad_max_x);
-    //screen.printf("miny:%.2f, maxy:%.2f\n", unitJoyC.ad_min_y, unitJoyC.ad_max_y);
-    
+    // レーダーを表示
+    rader.addPosition(unitMiniJoyCTask->unit.x, unitMiniJoyCTask->unit.y);
 
 
-
-    level.setLevel(unitJoyC.x);
-
-    // 小数点以下2桁まで表示
     char buf[128];
-    sprintf(buf,"%.2f,%.2f\n", unitJoyC.x, unitJoyC.y);
-    rader.addPosition(unitJoyC.x, unitJoyC.y,buf);
-
+    sprintf(buf,"%.2f,%.2f\n", unitMiniJoyCTask->unit.x, unitMiniJoyCTask->unit.y);
     btSerial.send(buf);
     btSerial.update();
 
     fps.setText("FPS:" + String(screen.getFPS()));
+    mem.setText("MEM:" + String(Device::getFreeDmaSize()));
 
     screen.update();
 
    // delay(10);
+}
+
+void showMessage(char* msg)
+{
+    message.setText(msg);
+    screen.update();
 }

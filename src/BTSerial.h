@@ -3,53 +3,57 @@
 #include <BluetoothSerial.h>
 #include <functional>
 
-BluetoothSerial SerialBT;
 
 class BTSerial {
+    BluetoothSerial SerialBT;
+    // 終端文字
+    static const char TERMINATOR = '\n';
+    // バッファ最大サイズ
+    static const int MAX_BUFFER_SIZE = 256;
 public:
     BTSerial(const char* deviceName, bool isMaster = false, const char* targetDeviceName = "") 
         : _deviceName(deviceName), _isMaster(isMaster), _targetDeviceName(targetDeviceName) {
-
-            LOG_I("Device name: %s", deviceName);
-            LOG_I("Device Name %s", _deviceName);
     }
 
-    void begin() {
+    bool begin() {
         LOG_I("Bluetooth start");
-        if (_isMaster) {
-            LOG_I("Master mode begin", _deviceName);
-            if (!SerialBT.begin(_deviceName, true)) { // Master mode
-                LOG_E("Bluetooth start failed");
-                return;
+        _buffer.reserve(MAX_BUFFER_SIZE); // バッファの初期サイズを設定
+        if(SerialBT.begin(_deviceName,_isMaster)){
+            LOG_I("Bluetooth started");
+            if(_isMaster){
+                return connect();
             }
-            LOG_I("Bluetooth started connecting to %s", _targetDeviceName);
-            SerialBT.connect(_targetDeviceName);
-            while (!SerialBT.connected(10000)) {
-                LOG_I("Connecting to %s",_targetDeviceName);
-                delay(1000);
-            }
-            LOG_I("Connected to target device");
-        } else {
-            LOG_I("Slave mode begin", _deviceName);
-            if (!SerialBT.begin(_deviceName)) { // Slave mode
-                LOG_E("Bluetooth start failed");
-            } else {
-                LOG_I("Bluetooth started");
-            }
+            return true;
         }
-        _buffer.reserve(256); // バッファの初期サイズを設定
-        LOG_I("Bluetooth started");
+        LOG_E("Bluetooth start failed");
+        return false;
     }
-
+    bool connect(){
+        if(_targetDeviceName == ""){
+            LOG_E("Target device name is not set");
+            return false;
+        }
+        LOG_I("Bluetooth connecting to %s", _targetDeviceName);
+        if(!SerialBT.connect(_targetDeviceName)){
+            LOG_E("Failed to connect to target device %s", _targetDeviceName);
+            return false;
+        }
+        LOG_I("Connected to target device %s", _targetDeviceName);
+        return true;
+    }
+    bool isConnected(){
+        return SerialBT.connected();
+    }
     void send(const String& message) {
         SerialBT.println(message);
     }
 
+    // \nを受信したらコールバックを呼ぶ
     void receive() {
         while (SerialBT.available()) {
             char c = SerialBT.read();
             LOG_D("Received: %c", c);
-            if (c == '\n') {
+            if (c == TERMINATOR) {
                 if (_buffer.length() > 0) {
                     if (_receiveCallback) {
                         _receiveCallback(_buffer);

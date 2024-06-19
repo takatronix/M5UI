@@ -22,9 +22,6 @@ void setup()
 {
 
   auto cfg = M5.config();
-  // cfg.external_speaker.hat_spk = true;
-  cfg.external_speaker.hat_spk2 = true;
-
   M5.begin(cfg);
   //WiFi.beginSmartConfig();
 

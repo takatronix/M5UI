@@ -729,7 +729,7 @@ public:
         case LayoutType::ScreenBottomCenter:
             return std::make_pair(M5.Display.width() / 2, M5.Display.height() - height() / 2);
         case LayoutType::ScreenCenter:
-            return std::make_pair(M5.Display.width() / 2, M5.Display.height() / 2 - height() / 2);
+            return std::make_pair(M5.Display.width() / 2, M5.Display.height() / 2 );
         }
     }
 

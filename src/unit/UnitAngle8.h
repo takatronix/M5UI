@@ -22,7 +22,8 @@ public:
 
     bool begin(uint8_t addr = ANGLE8_I2C_ADDR)
     {
-        bool ret = I2CWire::begin(addr);
+        bool ret =  I2CWire::begin(Wire,addr,0,26);
+        //bool ret = I2CWire::begin(addr);
         init();
         return ret;
     }
@@ -38,7 +39,7 @@ public:
     void update()
     {
         if(!isConnected()){
-            //LOG_E("Angle8 is not connected");
+            LOG_E("Angle8 is not connected");
             return; 
         };
 

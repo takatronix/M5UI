@@ -8,17 +8,17 @@ Samples of basic off-screen buffer creation and sprite creation
 // offscreen buffer -> LCD
 M5UICanvas screen(&M5.Display);
 
-TextSprite topLeft(&screen);
-TextSprite topCenter(&screen);
-TextSprite topRight(&screen);
+TextSprite topLeft(&screen,"TopLeft",LayoutType::ScreenTopLeft);
+TextSprite topCenter(&screen,"TopCenter",LayoutType::ScreenTopCenter);
+TextSprite topRight(&screen,"TopRight",LayoutType::ScreenTopRight);
 
-TextSprite middleLeft(&screen);
-TextSprite center(&screen);
-TextSprite middleRight(&screen);
+TextSprite middleLeft(&screen,"MiddleLeft",LayoutType::ScreenMiddleLeft);
+TextSprite center(&screen,"Center",LayoutType::ScreenCenter);
+TextSprite middleRight(&screen,"MiddleRight",LayoutType::ScreenMiddleRight);
 
-TextSprite bottomLeft(&screen);
-TextSprite bottomCenter(&screen);
-TextSprite bottomRight(&screen);
+TextSprite bottomLeft(&screen,"BottomLeft",LayoutType::ScreenBottomLeft);
+TextSprite bottomCenter(&screen,"BottomCenter",LayoutType::ScreenBottomCenter);
+TextSprite bottomRight(&screen,"BottomRight",LayoutType::ScreenBottomRight);
 
 
 void setup() {
@@ -28,52 +28,6 @@ void setup() {
   screen.setup();
   // 自動回転を無効にする場合はfalseに設定
   //screen.enableRotation = false;
-
-  // startup sound
-  Sound::beep(2000,100);
-  Sound::beep(1000,100);
-  
-  
-  int textSize = 1;
-
-  topLeft.setTextSize(textSize);
-  topCenter.setTextSize(textSize);
-  topRight.setTextSize(textSize);
-
-  middleLeft.setTextSize(textSize);
-  center.setTextSize(textSize);
-  middleRight.setTextSize(textSize);
-  
-  bottomLeft.setTextSize(textSize);
-  bottomCenter.setTextSize(textSize);
-  bottomRight.setTextSize(textSize);
-  
-  // set postion
-  topLeft.setLayout(LayoutType::ScreenTopLeft);
-  topCenter.setLayout(LayoutType::ScreenTopCenter);
-  topRight.setLayout(LayoutType::ScreenTopRight);
-
-  middleLeft.setLayout(LayoutType::ScreenMiddleLeft);
-  center.setLayout(LayoutType::ScreenCenter);
-  middleRight.setLayout(LayoutType::ScreenMiddleRight);
-
-  bottomLeft.setLayout(LayoutType::ScreenBottomLeft);
-  bottomCenter.setLayout(LayoutType::ScreenBottomCenter);
-  bottomRight.setLayout(LayoutType::ScreenBottomRight);
-
-  // set text
-  topLeft.setText("TopLeft");
-  topCenter.setText("TopCenter");
-  topRight.setText("TopRight");
-
-  middleLeft.setText("MiddleLeft");
-  center.setText("Center");
-  middleRight.setText("MiddleRight");
-
-  bottomLeft.setText("BottomLeft");
-  bottomCenter.setText("BottomCenter");
-  bottomRight.setText("BottomRight");
-
 
 }
 

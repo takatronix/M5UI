@@ -5,8 +5,8 @@
 class LevelSprite : public Sprite
 {
 public:
-    LevelSprite(M5Canvas *pDisplay, int width = 128, int height = 20, LayoutType layout = LayoutType::ScreenTopLeft, int depth = M5UI_COLOR_DEPTH, bool psram = false) : Sprite(pDisplay, width, height, depth, psram)
-    {
+    LevelSprite(M5Canvas *pDisplay, int width = 128, int height = 20, int x = 0,int y = 0, int depth = M5UI_COLOR_DEPTH, bool psram = false) : Sprite(pDisplay, width, height, depth, psram)
+    {        
         if (create(width, height, 0, 0, depth, psram) == NULL)
         {
             LOG_E("Level Sprite create error");
@@ -15,13 +15,17 @@ public:
 
         enableAffine = false;
         enableTransparent = false;
-        setLayout(layout);
+       setPosition(x,y);
     }
 
     void setLevel(float level)
     {
         // レベルを0から1の範囲に収める
-        _level = constrain(level, 0.0f, 1.0f);
+        float lv = constrain(level, 0.0f, 1.0f);
+        if(_level == lv){
+            return;
+        }
+        _level = lv;
         _shouldRedraw = true;
     }
 

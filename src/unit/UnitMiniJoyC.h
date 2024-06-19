@@ -83,7 +83,7 @@ public:
         if(ay > ad_max_y){
             ad_max_y = ay;
         }
-        LOG_D("ad_min_x:%f, ad_max_x:%f, ad_min_y:%f, ad_max_y:%f", ad_min_x, ad_max_x, ad_min_y, ad_max_y);
+        //LOG_D("ad_min_x:%f, ad_max_x:%f, ad_min_y:%f, ad_max_y:%f", ad_min_x, ad_max_x, ad_min_y, ad_max_y);
 
         // 最大値と最小値から中央値を算出
         float mid_x = (ad_max_x + ad_min_x) / 2;

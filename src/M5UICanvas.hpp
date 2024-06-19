@@ -151,7 +151,6 @@ public:
         this->setTextSize(1);
         this->setTextScroll(true);
 
-        this->setTextColor(CYAN);
         this->setTextColor(GREEN);
 
         // spriteをsetup

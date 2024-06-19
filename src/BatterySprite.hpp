@@ -64,6 +64,11 @@ public:
         int tipHeight = height * 0.5;     // 突起部の高さは全体の50%
         int bodyWidth = width - tipWidth; // 本体の幅
 
+
+        // いったん背景を塗りつぶす
+        uint16_t background = M5.Display.color565(10, 0, 0);
+        canvas->fillRect(x, y, width, height, background);
+
         // バッテリー本体の枠を描画
         canvas->drawRect(x, y, bodyWidth, height, frameColor);
 
